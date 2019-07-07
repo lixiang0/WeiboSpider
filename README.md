@@ -12,6 +12,7 @@
 # 执行
 
 项目根目录执行：
+
 '''scrapy crawl weibo'''
 
 #TIP
@@ -20,6 +21,7 @@
 登陆成功之后在浏览器界面按下F12-->选择network-->weibo.cn-->找到cookie，如下图：
 ![](./weibo.png)
 然后需要把对应的值填入'''spiders/weibo.py'''如下代码段中：
+
 '''
     cookie = {'_T_WM':'',
             'ALF':'',
