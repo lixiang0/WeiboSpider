@@ -2,6 +2,11 @@
 
 通过手动收集微博上的资料比较繁琐。
 
+本项目只需要执行'''scrapy crawl weibo'''即可将微博上的微博或文章下载到本地，方便进行整理。
+
+# 安装scrapy
+
+'''pip install scrapy'''
 
 # 安装bs4
 
