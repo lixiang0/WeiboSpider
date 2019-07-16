@@ -2,23 +2,23 @@
 
 通过手动收集微博上的资料比较繁琐。
 
-本项目只需要执行'''scrapy crawl weibo'''即可将微博上的微博或文章下载到本地，方便进行整理。
+本项目自动将微博上的微博或文章下载到本地，方便进行整理。
 
 # 安装scrapy
 
-'''pip install scrapy'''
+```pip install scrapy```
 
 # 安装bs4
 
-'''pip install beautifulsoup4'''
+```pip install beautifulsoup4```
 
 # 执行
 
 在项目根目录weibo执行：
-'''scrapy crawl weibo'''爬取微博
+```scrapy crawl weibo```爬取微博
 
 或者
-'''python spiders/wenzhang.py'''爬取文章
+```python spiders/wenzhang.py```爬取文章
 
 # TIPs
 
@@ -27,8 +27,8 @@
 ![](./weibo.png)
 
 然后需要把对应的值填入：
-1.'''spiders/weibo.py'''如下代码段中：
-'''
+1.```spiders/weibo.py```如下代码段中：
+```
     cookie = {'_T_WM':'',
             'ALF':'',
              'SCF':'-.',
@@ -36,10 +36,10 @@
              'SUBP':'',
              'SUHB':'',
              'SSOLoginState':''}  # 将cookie替换成自己的cookie
-'''
+```
 
-2.'''spiders/wenzhang.py'''下直接将拷贝到的cookie粘贴到下面代码段：
-'''
+2.```spiders/wenzhang.py```下直接将拷贝到的cookie粘贴到下面代码段：
+```
 cookie = {'Cookie': ''}  # 将cookie替换成自己的cookie
-'''
+```
 
