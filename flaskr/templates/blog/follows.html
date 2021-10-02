@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+{{ super() }}
+
+{% endblock %}
+
+
+{% block nav %} {{ super() }}{% endblock %}
+
+{% block content %}
+{% if users %}
+{% for user in users %}
+{% include 'blog/uitem.html' %}
+{% endfor %}
+{% endif %}
+{% endblock %}
+
+
+{% block footer %} {{ super() }}{% endblock %}

@@ -1,0 +1,28 @@
+{% if blogs %}
+<div class="pagination main">
+    {% if curr>1 %}
+
+    {% if user %}
+    <a href='/u/{{ user['id'] }}?page={{ curr-1 }}'>上一页</a>
+    {% else %}
+    <a href='/u?page={{ curr-1 }}'>上一页</a>
+    {% endif %}
+    {% else %}
+    <a >没有了</a>
+    {% endif %}
+    <!-- <a href="#">&laquo;</a> -->
+    <!-- <a href="#">1</a>
+    <a href="#" class="active">2</a>
+    <a href="#">3</a>
+    <a href="#">4</a>
+    <a href="#">5</a>
+    <a href="#">6</a> -->
+    <!-- <a href="#">&raquo;</a> -->
+
+    {% if user %}  
+    <a href='/u/{{ user['id'] }}?page={{ curr+1 }}'>下一页</a>
+    {% else %}
+    <a href='/u?page={{ curr+1 }}'>下一页</a>
+    {% endif %}
+  </div>
+  {% endif %}

@@ -1,0 +1,102 @@
+
+<head>
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+
+// Get all "navbar-burger" elements
+const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+// Check if there are any navbar burgers
+if ($navbarBurgers.length > 0) {
+
+  // Add a click event on each of them
+  $navbarBurgers.forEach( el => {
+    el.addEventListener('click', () => {
+
+      // Get the target from the "data-target" attribute
+      const target = el.dataset.target;
+      const $target = document.getElementById(target);
+
+      // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+      el.classList.toggle('is-active');
+      $target.classList.toggle('is-active');
+
+    });
+  });
+}
+
+});
+    </script>
+</head>
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="http://122.51.50.206:8083">
+        <label width="112" height="28">悠然AI</label>
+      </a>
+  
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+  
+    <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/u">个人中心
+        </a>
+  
+        <a class="navbar-item" href="/f">我的关注
+        </a>
+  
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">
+            More
+          </a>
+  
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="/r/f/20">随机博主
+            </a>
+            <a class="navbar-item" href="/r/blog/20">随机微博
+            </a>
+
+            
+            <a class="navbar-item" href="/fav">我的收藏
+            </a>
+
+            <a class="navbar-item" href="/sou">搜索</a>
+            <hr class="navbar-divider">
+            <a class="navbar-item" href="/about">关于
+            </a>
+          </div>
+        </div>
+      </div>
+  
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+
+            {% if session['uid'] %}
+            <a class="button is-primary" href="/auth/logout">
+                <strong>注销</strong>
+              </a>
+            {% else %}
+            <a class="button is-primary" href="/auth/login">
+                <strong>登录</strong>
+              </a>
+              <a class="button is-light" href="/auth/register">
+                <strong>注册</strong>
+              </a>
+
+            {% endif %}
+
+        
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-burger">
+     
+    </div>
+  </nav>

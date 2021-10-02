@@ -1,0 +1,14 @@
+
+
+{% if comments['ok']==1 %}
+<article class="message is-small">
+    <div class="message-header">
+      <p>评论：</p>
+    </div>
+    {% for comment in comments['data']['data'] %}
+    <div class="message-body">
+        <p>{{ comment["user"]["screen_name"] }}:{{ comment["text"]|safe }}</p>
+    </div>
+    {% endfor %}
+  </article>
+  {% endif %}

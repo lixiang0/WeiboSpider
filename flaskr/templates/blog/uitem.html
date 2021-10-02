@@ -1,0 +1,37 @@
+
+
+<div class="card">
+    <div class="card-content">
+      <div class="media">
+        <div class="media-left">
+          <figure class="image is-48x48">
+            <img src="{{ user['profile_image_url'] }}" alt="Placeholder image">
+          </figure>
+          
+        </div>
+       
+        <div class="media-content">
+          <p class="title is-4">{{ user['screen_name'] }}</p>
+          <p class="subtitle is-4">@<a href='/u/{{ user['_id'] }} '> {{ user['screen_name'] }} </a></p>
+
+        </div>
+        <div class="media-left">
+          <p class="is-rounded">{% if follow %}<a href="/ufollow/{{ user['id'] }}">取消关注</a>{% else %}<a href="/follow/{{ user['id'] }}">关注</a>{% endif %}</p>
+        </div>
+      </div>
+  
+      <div class="content">
+        {{ user['description'] }}
+        <br>
+        <!-- <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time> -->
+      </div>
+
+     
+        <footer class="card-footer">
+          <p  class="card-footer-item">{{ user['follow_count'] }}<br>关注</p>
+          <p  class="card-footer-item">{{ user['followers_count'] }}<br>粉丝</p>
+          <p  class="card-footer-item">{{ user['statuses_count'] }}<br>微博</p>
+        </footer>
+
+    </div>
+  </div>

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block header %}
+
+{% if user %}
+<div class="header" 
+style='background-image:url({{ user['cover_image_phone'] }});background-size:cover'
+>
+    <h1>youran.ai</h1>
+    <p>技术改变生活.</p>
+</div>
+{% else %}
+{{ super() }}
+{% endif %}
+
+{% endblock %}
+
+
+{% block nav %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+
+{{ super() }}
+
+{% endblock %}
+
+
+{% block card0 %}
+
+{{ super() }}
+
+{% endblock %}
+
+{% block card %}
+
+{{ super() }}
+
+{% endblock %}
+
+{% block footer %} 
+
+{{ super() }}
+
+{% endblock %}

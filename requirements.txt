@@ -1,0 +1,9 @@
+pymongo
+requests
+scrapy
+flask
+paste
+tqdm
+minio
+flask_cors
+bs4

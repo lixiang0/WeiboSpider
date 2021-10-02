@@ -1,0 +1,62 @@
+
+<body>
+
+  {% extends "base.html" %}
+  {% block title %}Index{% endblock %}
+  {% block head %}
+  {{ super() }}
+  {% endblock %}
+  
+  
+  {% block nav %} {{ super() }}{% endblock %}
+  {% block content %}
+
+   <!-- <div> 
+      <form class="card" style='width:60%;text-align: center;margin: auto;margin-top: 40px;' action="{{ url_for('auth.login') }}" method=POST> -->
+      <!-- <form class="view_form" action="/login"> -->
+          <!-- <h1>登录</h1> -->
+          <!-- <p>登录</p> -->
+          <!-- <hr>
+          <div>
+          <label><b>用户名:</b></label>
+          <input type="text" name='uname' placeholder="please input username"></input>
+      </div>
+      <div>
+          <label><b>密码:</b></label>
+          <input type="password" name='psw' placeholder="please input password"></input>
+      </div> -->
+          <!-- <label><b>Repeat Password:</b></label>
+          <input type="password" name='repwd' placeholder="please repeat password"></input> -->
+
+          <!-- <p>read <a href="#">Terms&Privacy</a>没有账号？<a href='/signup'>注册</a></p>
+          <button  type="submit">登录</button>
+      </form>
+   </div>  -->
+
+   <section class="section" style="width: 80%;">
+   <form class="box" action="{{ url_for('auth.login') }}" method=POST>
+    <div class="field">
+      <label class="label">username</label>
+      <div class="control">
+        <input class="input" type="text" name='uname' placeholder="e.g. alex">
+      </div>
+    </div>
+  
+    <div class="field">
+      <label class="label">Password</label>
+      <div class="control">
+        <input class="input" type="password" name='psw' placeholder="********">
+      </div>
+    </div>
+  
+    <button class="button is-primary" type="submit">Sign in</button>
+  </form>
+  </section>
+  {% endblock %}
+  {% block card %}
+  {{ super() }}
+  {% endblock %}
+  {% block footer %} {{ super() }}{% endblock %}
+
+
+</body>

@@ -1,0 +1,66 @@
+version: "3.3"
+services:
+  all:
+    build: .
+    environment:
+      - DBIP=192.168.1.14
+      - DBPort=27017
+      - MINIOIP=192.168.1.9
+      - MINIOPort=9010
+    image: 'weibo_all:$TAG'
+    command: python3 get_all.py
+    restart: unless-stopped
+  my:
+    build: .
+    environment:
+      - DBIP=192.168.1.14
+      - DBPort=27017
+      - MINIOIP=192.168.1.9
+      - MINIOPort=9010
+    image: 'weibo_my:$TAG'
+    command: python3 get_my.py
+    restart: unless-stopped
+
+  follow:
+    build: .
+    environment:
+      - DBIP=192.168.1.14
+      - DBPort=27017
+      - MINIOIP=192.168.1.9
+      - MINIOPort=9010
+    image: 'weibo_follow:$TAG'
+    command: python3 get_follow.py
+    restart: unless-stopped
+  hot:
+    build: .
+    environment:
+      - DBIP=192.168.1.14
+      - DBPort=27017
+      - MINIOIP=192.168.1.9
+      - MINIOPort=9010
+    image: 'weibo_hot:$TAG'
+    command: python3 get_hot.py
+    restart: unless-stopped
+  media:
+    build: .
+    environment:
+      - DBIP=192.168.1.14
+      - DBPort=27017
+      - MINIOIP=192.168.1.9
+      - MINIOPort=9010
+    image: 'weibo_media:$TAG'
+    command: python3 get_media.py
+    restart: unless-stopped
+  web:
+    build: .
+    environment:
+      - DBIP=192.168.1.14
+      - DBPort=27017
+      - MINIOIP=192.168.1.9
+      - MINIOPort=9010
+      - FLASKAPP=flaskr
+    ports: 
+      - 8089:8089 
+    image: 'weibo_web:$TAG'
+    command: flask run --host 0.0.0.0 --port 8089
+    restart: unless-stopped

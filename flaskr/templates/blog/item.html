@@ -1,0 +1,98 @@
+
+<div class="box">
+    <article class="media">
+      <div class="media-left">
+        <figure class="image is-64x64">
+          <img src="{{ blog['user']['profile_image_url'] }}" alt="Image">
+        </figure>
+      </div>
+      <div class="media-content">
+        <div class="content">
+          <p>
+            <strong><a href='/u/{{ blog['user']['id'] }}'>@{{ blog['user']['screen_name'] }}</a></strong> <small><a href='/b/{{ blog['bid'] }}'>查看原文</a></small>
+            <br>
+            发表于{{ blog['created_at'] }}<br>来自{{ blog['source'] }}<br>
+            {{ blog['text']|safe }}
+            {% if blog['pics'] %}<br>
+            <table class="table">
+                {% for pic in blog['pics'] %}
+                <!-- <image class="lazy" lazyload="true" data-original='/static/imgs/{{ pic['large']['url'].split('/')[-1] }}'></image> -->
+                <img width=300px src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}" alt="">
+                {% endfor %}
+            </table>
+            {% endif %}
+            {% if blog['video_name'] %}<br>
+            <!-- <video autoplay='false' width=300px controls> -->
+            <video width=300px controls>
+                <source src='/static/videos/{{ blog['video_name'] }}' type='video/mp4'>
+            </video>
+            <!-- </video> -->
+            {% endif %}
+          </p>
+          {% if blog['retweeted_status'] %}
+          <!-- <div class="box"> -->
+            <article class="media">
+              <div class="media-left">
+                <figure class="image is-48x48">
+                  <img src="{{ blog['user']['profile_image_url'] }}" alt="Image">
+                </figure>
+              </div>
+              <div class="media-content">
+                <div class="content">
+                  <p>
+                    <strong><a href='/u/{{ blog['user']['id'] }}'>@{{ blog['retweeted_status']['user']['screen_name'] }}</a></strong> <small><a href='/b/{{ blog['retweeted_status']['bid'] }}'>查看原文</a></small>
+                    <br>
+                    发表于{{ blog['retweeted_status']['created_at'] }}<br>来自{{ blog['retweeted_status']['source'] }}<br>
+                    {{ blog['retweeted_status']['text']|safe }}
+                    {% if blog['retweeted_status']['pics'] %}<br>
+                    <table class="table">
+                        {% for pic in blog['retweeted_status']['pics'] %}
+                        <!-- <image class="lazy" lazyload="true" data-original='/static/imgs/{{ pic['large']['url'].split('/')[-1] }}'></image> -->
+                        <img width=300px src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}" alt="">
+                        {% endfor %}
+                    </table>
+                    {% endif %}
+                    {% if blog['retweeted_status']['video_name'] %}<br>
+                    <!-- <video autoplay='false' width=300px controls> -->
+                    <video width=300px controls>
+                        <source src='/static/videos/{{ blog['retweeted_status']['video_name'] }}' type='video/mp4'>
+                    </video>
+                    <!-- </video> -->
+                    {% endif %}
+                  </p>
+                <!-- </div> -->
+            
+        </article>
+          {% endif %}
+        </div>
+
+        <nav class="level">
+          <div class="level-left">
+            <a class="level-item" aria-label="reply">
+              <!-- <span class="icon "> -->
+                评论：{{ blog['comments_count'] }}
+                <i class="fab fa-angellist"></i>
+                <i class="fas fa-reply" aria-hidden="true"></i>
+              <!-- </span> -->
+            </a>
+            <a class="level-item" aria-label="retweet">
+              <!-- <span class="icon"> -->
+                转发：{{ blog['reposts_count'] }}
+                <i class="fas fa-retweet" aria-hidden="true"></i>
+              <!-- </span> -->
+            </a>
+            <a class="level-item right" aria-label="like">
+              <!-- <span class="icon is-small"> -->
+                {% if fav %}<a href="/ufav/{{ blog['bid'] }}">取消点赞</a>{% else %}<a
+                href="/fav/{{ blog['bid'] }}">点赞</a>{% endif %}： {{ blog['attitudes_count'] }}
+                <i class="fas fa-heart" ></i>
+              <!-- </span> -->
+            </a>
+          </div>
+        </nav>
+      </div>
+    </article>
+  </div>
+
+
+

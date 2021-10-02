@@ -1,0 +1,124 @@
+<head>
+  <style>
+      .view_signup {
+          /* position: fixed; */
+          width: 100%;
+          height: 100%;
+          /* font-size: 19px; */
+      }
+
+      .view_form {
+          padding: 16px;
+          margin: 5% auto 15% auto;
+          width: 50%;
+          border: 1px solid gray;
+      }
+
+      hr {
+          background-color: 1px solid #f1f1f1;
+          margin-bottom: 20px;
+      }
+
+      input[type=text],
+      input[type=password] {
+          width: 60%;
+          padding: 15px 15px;
+          margin: 10px 20px;
+          border: none;
+          font-size: 25px;
+          background-color: #f1f1f1;
+          display: inline-block;
+      }
+
+      input[type=text]:focus,
+      input[type=password]:focus {
+          background-color: #ddd;
+          outline: none;
+      }
+
+      p,
+      label {
+          padding: 10px;
+      }
+
+      button {
+          padding: 10px 20px;
+          width: 100%;
+          background-color: #4CAF50;
+          color: white;
+          margin: 8px 0;
+          border: none;
+          cursor: pointer;
+          opacity: 0.9;
+      }
+      button:hover{
+          opacity: .5;
+      }
+
+      .view_buttom {
+          text-align: center;
+          background-color: #f1f1f1;
+
+      }
+
+      a {
+          color: dodgerblue;
+      }
+  </style>
+
+</head>
+
+
+
+<body>
+
+  {% extends "base.html" %}
+  {% block title %}Index{% endblock %}
+  {% block head %}
+  {{ super() }}
+  <style type="text/css">
+      .important {
+          color: #336699;
+      }
+  </style>
+  {% endblock %}
+  
+  
+  {% block nav %} {{ super() }}{% endblock %}
+  {% block content %}
+  <div >
+
+
+      <form class="card" style='width:60%;text-align: center;margin: auto;margin-top: 40px;' action="/signup" method=POST>
+          <h1>Register</h1>
+          <p>注册账号</p>
+          <hr>
+          <div >
+          <label><b>用户名:</b></label>
+          <input type="text" name='uname' placeholder="please input username"></input>
+            </div>
+            <div >  
+          <label><b>密码:</b></label>
+          <input type="password" name='psw' placeholder="please input password"></input>
+              </div>
+          <label><b>微博ID:</b></label>
+          <input type="text" name='uid' placeholder="please input id"></input>
+
+          <p>read <a href="#">Terms&Privacy</a></p>
+          <button type="submit">Register</button>
+
+          <div class="view_buttom">
+              <p>already have a account?<a href="login">login</a></p>
+          </div>
+
+
+      </form>
+  </div>
+  {% endblock %}
+  {% block card %}
+  {{ super() }}
+  {% endblock %}
+  {% block footer %} {{ super() }}{% endblock %}
+
+
+</body>

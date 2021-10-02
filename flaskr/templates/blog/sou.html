@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Index{% endblock %}
+{% block header %}
+
+{{ super() }}
+
+{% endblock %}
+
+
+{% block nav %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<p>
+    <center>找博文/找人</center>
+</p>
+<form action="/sou" method="POST">
+<div class="field has-addons ">
+    
+    <div class="control" >
+        {% if not value %}
+        <input class="input" id="srText" name='tkey' type="text" placeholder="Find a repository">
+        {% else %}
+        <input class="input" id="srText" name='tkey' type="text" placeholder="Find a repository" value="{{ value }}">
+        {% endif %}
+    </div>
+    <div class="control">
+        <button class="button is-info" id="srBtn">
+            搜索
+        </button>
+    </div>
+
+
+ 
+</div></form>
+{% if users %}
+{% for user in users %}
+{% include 'blog/uitem.html' %}
+{% endfor %}
+{% endif %}
+{% endblock %}
+
+
+{% block card0 %}
+
+{{ super() }}
+
+{% endblock %}
+
+{% block card %}
+
+{{ super() }}
+
+{% endblock %}
+
+{% block footer %}
+
+{{ super() }}
+
+{% endblock %}

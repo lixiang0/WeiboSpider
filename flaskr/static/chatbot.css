@@ -1,0 +1,46 @@
+body{
+    font-family:'Roboto Mono'
+}
+
+.clickable{
+	cursor:pointer;
+}
+
+
+
+.chat-screen{
+	width:600px;
+	height:400px;
+	background-color:white;
+	border: 1px solid #999;
+	padding: 10px;
+    overflow-y: scroll;
+}
+
+.chat-screen .sender{
+	color:red;
+    margin-right: 10px;
+}
+
+.chat-screen .sender.boto{
+	color:blue;
+}
+
+
+.chat-input{
+	width: 480px;
+    font-size: 20px;
+    margin-top: 10px;
+    border: 1px solid #999;
+    outline: none;
+
+}
+
+.chat-send{
+	padding:5px 30px;
+	display:inline-block;
+	background-color:#00FF7F;
+	vertical-align: bottom;
+}
+
+
