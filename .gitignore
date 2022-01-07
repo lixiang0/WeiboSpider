@@ -1,3 +1,5 @@
 *.jpg
 *.mp4
 *.log
+results/*.json
+__pycache__/

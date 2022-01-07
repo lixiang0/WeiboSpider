@@ -4,22 +4,48 @@
 
 ## 【文档不完善，继续补充中。】
 
-## 功能：
+## 主要功能：
 
 - 爬取全站微博
 - 抓取全站博主信息
 - 实时抓取全站热搜
 - 本地化部署微博
+- 关注博主/搜索博主/收藏博文
+
+## 功能展示
+
+- 用户主页
+![](imgs/用户主页.png)
+
+- 个人主页
+![](imgs/个人主页.png)
+
+- 关注页
+![](imgs/关注页.png)
+
+- 博文页
+![](imgs/博文页.png)
+
+- 搜索博主
+![](imgs/搜索博主.png)
+
+- 随机博文
+![](imgs/随机博文.png)
+
+- 随机博主
+![](imgs/随机博主.png)
 
 ## todo
 - 完善网页界面
 - 完善文档
 
+## 功能
+
 ## docker部署
 
 ```
-git clone https://github.com/lixiang0/weibo
-cd weibo/
+git clone https://github.com/lixiang0/WeiboSpider
+cd WeiboSpider/
 
 # 1.mongo
 docker run -p 27017:27017 --name docker_mongodb -d mongo
@@ -43,10 +69,4 @@ docker run \
 sudo docker-compose up -d --build
 ```
 
-## [待补充]
-
-
-## 截图
-
-![](1634055603(1).png)
 
