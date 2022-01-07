@@ -1,4 +1,8 @@
 import os
+# os.environ['DBIP']='192.168.31.123'
+# os.environ['MINIOIP']='192.168.31.13'
+# os.environ['DBPort']='27017'
+# os.environ['MINIOPort']='9010'
 import logging
 from flask import Flask,session,send_file
 import io

@@ -17,7 +17,7 @@ min = Min()
 
 def getall(uid,duplicate=False,cookie=False,proxy=True):
     uid=int(uid)
-    username=youran.db.user.find_user(uid)['screen_name']
+    username=youran.db.user.find_users([uid])[0]['screen_name']
     main.warning(f'当前爬取的用户ID为：uid={uid},username={username}')
     main.warning('*'*100)
     total_mblogs ,msg = youran.net.mblog.extract_mblogs(uid, 0,cookie=cookie,proxy=proxy)
@@ -28,7 +28,7 @@ def getall(uid,duplicate=False,cookie=False,proxy=True):
 
     total_page = math.ceil(total_mblogs/10)
     main.warning(f'当前计算得到总页数:{int(total_page)},总博文数目:{int(total_mblogs)}')
-    current_page =total_page+1  #这里加1是因为while循环总是先减一
+    current_page =100 if total_page>100 else total_page#total_page+1  #这里加1是因为while循环总是先减一
     while True:
         if current_page<2:# 原因：total_page+1--> 1+1
             break
@@ -49,14 +49,14 @@ def getall(uid,duplicate=False,cookie=False,proxy=True):
         main.warning('*'*100)
         for mblog in mblogs:
             #Tue Sep 28 20:12:48 2021
-            timeint=time.strftime('%d/%m/%Y %H:%M:%S',datetime.datetime.strptime(mblog['created_at'],
-                                            "%a %b %d %H:%M:%S %z %Y").timetuple())
+            timeint=time.mktime(datetime.datetime.strptime(mblog['created_at'],
+                                                    "%a %b %d %H:%M:%S %z %Y").timetuple())
             mblog['created_at1']=timeint
             utils.download_mblog(mblog,uid,current_page,total_page,duplicate=False,cookie=cookie,proxy=proxy)
         youran.db.log.add({'_id':str(uid)+str(_page),'uid':uid,'page':_page})
         utils.sleep(5, 10)
     main.warning(f'本id:{uid}，用户名：{username}抓取结束..')
     main.warning(f'总共{total_page}页微博,实际抓取到{total_page-current_page+1}页微博')      
-    youran.db.states.add({'name':'my_feeds','update_time':time.asctime( time.localtime(time.time()) )})
+    youran.db.states.add({'name':'更新所有微博：','update_time':time.asctime( time.localtime(time.time()) )})
     return 0,'success'
 

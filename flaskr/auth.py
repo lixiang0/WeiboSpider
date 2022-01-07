@@ -10,9 +10,9 @@ from flask import session
 from flask import url_for
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
-import logging
+import logging,youran
 from flaskr.db import get_db
-# from flaskr import blog
+from flaskr import dbutils
 LOG = logging.getLogger(__name__)
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -48,19 +48,20 @@ def login():
         LOG.info(dict(request.form))
         uname=request.form['uname']
         psw=request.form['psw']
-        ruser=get_db().count.find_user(uname)
+        ruser=get_db().account.find_user(uname)
         LOG.info('用户名密码与数据中进行比对结果：')
         LOG.info(ruser)
         if ruser:
+            ruser=ruser[0]
             if ruser['uname']==uname and ruser['psw']==psw:
                 LOG.info('登陆成功，转到主页，用户登陆成功')
                 session['uid']=ruser['_id']
                 LOG.info(f'当前登录用户为：{session["uid"]}')
                 return redirect(url_for('blog.index'))
         else:
-            return render_template('auth/login.html',items=get_db().hot.find_hot()[0]['items'])
+            return render_template('auth/login.html',items=dbutils.get_hot())
     else:
-        return render_template('auth/login.html',items=get_db().hot.find_hot()[0]['items'])
+        return render_template('auth/login.html',items=dbutils.get_hot())
 @bp.route('/logout', methods=[ 'GET','POST'])
 def logout():
     session.pop('uid', None)
@@ -69,84 +70,12 @@ def logout():
 def signup():
     print(request.form)
     if request.method == 'POST':
-        u=get_db().user.find_user(request.form['uid'])
-        print(u)
-        if u:
+        u=get_db().user.find_users([request.form['uid']])
+        # print(u)
+        if u and u.count():
             return render_template('auth/register.html',error='uid is duplicated')
         else:
-            get_db().count.add_user({'_id':request.form['uid'],'uname':request.form['uname'],'psw':request.form['psw']})
+            get_db().account.add({'_id':request.form['uid'],'uname':request.form['uname'],'psw':request.form['psw']})
             session['uid']=request.form['uid']
             return redirect(url_for('blog.index'))
-    return render_template('auth/register.html')
-
-# @bp.route("/register", methods=("GET", "POST"))
-# def register():
-#     """Register a new user.
-
-#     Validates that the username is not already taken. Hashes the
-#     password for security.
-#     """
-#     if request.method == "POST":
-#         username = request.form["username"]
-#         password = request.form["password"]
-#         db = get_db()
-#         error = None
-
-#         if not username:
-#             error = "Username is required."
-#         elif not password:
-#             error = "Password is required."
-
-#         if error is None:
-#             try:
-#                 db.execute(
-#                     "INSERT INTO user (username, password) VALUES (?, ?)",
-#                     (username, generate_password_hash(password)),
-#                 )
-#                 db.commit()
-#             except db.IntegrityError:
-#                 # The username was already taken, which caused the
-#                 # commit to fail. Show a validation error.
-#                 error = f"User {username} is already registered."
-#             else:
-#                 # Success, go to the login page.
-#                 return redirect(url_for("auth.login"))
-
-#         flash(error)
-
-#     return render_template("auth/register.html")
-
-
-# @bp.route("/login", methods=("GET", "POST"))
-# def login():
-#     """Log in a registered user by adding the user id to the session."""
-#     if request.method == "POST":
-#         username = request.form["username"]
-#         password = request.form["password"]
-#         db = get_db()
-#         error = None
-#         user = db.execute(
-#             "SELECT * FROM user WHERE username = ?", (username,)
-#         ).fetchone()
-
-#         if user is None:
-#             error = "Incorrect username."
-#         elif not check_password_hash(user["password"], password):
-#             error = "Incorrect password."
-
-#         if error is None:
-#             # store the user id in a new session and return to the index
-#             session.clear()
-#             session["user_id"] = user["id"]
-#             return redirect(url_for("index"))
-
-#         flash(error)
-
-#     return render_template("auth/login.html")
-
-
-# @bp.route("/logout")
-# def logout():
-#     """Clear the current session, including the stored user id."""
-#     session.clear()
-#     return redirect(url_for("index"))
+    return render_template('auth/register.html',items=dbutils.get_hot())

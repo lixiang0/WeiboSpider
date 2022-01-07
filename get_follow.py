@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+import os
+import os
+os.environ['DBIP']='192.168.1.9'
+os.environ['MINIOIP']='192.168.1.9'
+os.environ['DBPort']='27017'
+os.environ['MINIOPort']='9001'
 import youran
 from youran import db,net,utils
 from youran.db import *
@@ -9,15 +15,18 @@ import os,logging,time
 
 main = logging.getLogger('main')
 main.setLevel(logging.DEBUG)
-
-
+# youran.db.db_client = pymongo.MongoClient(f"mongodb://{os.environ['DBIP']}:{os.environ['DBPort']}/")["db_weibo1"]
+# print(os.environ['DBIP'])
 while True:
     scount=dict()
-    seeds=[]
-    mblogs=youran.db.mblog.random(20)
+    seeds=set()
+    mblogs=youran.db.follow.random(20)
     for mblog in mblogs:
-        if 'mblog' in mblog:
-            seeds.append(mblog['user']['id'])
+        # if 'mblog' in mblog:
+            # seeds.append(mblog['user']['id'])
+        seeds.add(repr(mblog['blogger']))
+    if len(seeds)==0:
+        seeds=set([1865990891])    
     while len(seeds) != 0:
         uid = seeds.pop()
         if uid in scount:
@@ -26,21 +35,26 @@ while True:
                 continue
         else:
             scount[uid]=0
+        # main.warning(f'{uid},failed num:{scount[uid]}***********************************')
         current_page = 1
         while True:
-            total, users = youran.net.follow.get(uid, current_page)
+            main.warning(f'{uid}')
+            total, users = youran.net.follow.get(uid, current_page,proxy=True)
             if users is None:
                 scount[uid]+=1
-                main.warning('本用户抓取结束')
+                print('本用户抓取结束')
                 break
+            # page_num = total/20 if total % 20 == 0 else total/20+1
+            # print(current_page, total, users)
             for user in users:
-                main.warning(user['screen_name'])
-                # main.warning(user['screen_name'])
-                youran.db.user.add_user(user)
-                youran.db.follow.add({'_id': str(uid)+str(user['id']), 'fans': int(uid), 'blogger': int(user['id'])})
-                youran.db.states.add({'name':'all_follow','update_time':time.asctime( time.localtime(time.time()) )})
+                # print(user['screen_name'])
+                main.warning(repr(user['_id'])+"   "+user['screen_name'])
+                assert youran.db.user.add(user)  is True
+                assert youran.db.follow.add({'_id': str(uid)+str(user['id']), 'fans': int(uid), 'blogger': int(user['id'])}) is True
+                assert youran.db.states.add({'name':'所有用户：','update_time':time.asctime( time.localtime(time.time()) )}) is True
             current_page += 1
-    else:
-        seeds = youran.db.follow.all_bloggers()-youran.db.follow.all_follows()
-        if len(seeds) == 0:
-            break
+        # utils.sleep(10,50)
+    # else:
+    #     seeds = youran.db.follow.bloggers()#-youran.db.Follow().all_follows()
+    #     if len(seeds) == 0:
+    #         break

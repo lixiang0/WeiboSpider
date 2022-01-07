@@ -3,3 +3,6 @@
 *.log
 results/*.json
 __pycache__/
+cookie.exe
+test.py
+test_s2time.py

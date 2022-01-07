@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 WORKDIR /code
 
 
@@ -22,7 +22,7 @@ RUN  apt install build-essential libssl-dev libffi-dev python-dev python3-pip gc
 COPY requirements.txt requirements.txt
 RUN pip3 install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple
 RUN pip3 install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple
-COPY youran-0.1.3-py3-none-any.whl .
+# COPY youran-0.1.3-py3-none-any.whl .
 COPY . .
-RUN pip3 install youran-0.1.3-py3-none-any.whl
+# RUN pip3 install youran-0.1.3-py3-none-any.whl
 RUN pip3 install cython pika -i https://mirrors.aliyun.com/pypi/simple
