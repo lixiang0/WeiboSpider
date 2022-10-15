@@ -1,0 +1,18 @@
+
+      <div class="card-content">
+        <ol type="1">
+          <p class="subtitle  is-6 ">
+            微博热搜
+          </p>
+          {% if dicts['items'] %}
+          {% for item in dicts['items'][:10] %}
+          <li class='block'>
+            <div class="icon-text">
+              <span><a href='/hot/{{ item[1] }}'>{{ item[0] }}</a></span>
+            </div>
+          </li>
+          {% endfor %}
+          {% endif %}
+
+        </ol>
+      </div>

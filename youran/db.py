@@ -4,9 +4,9 @@ import random,time
 import pymongo
 import youran
 
-db_client = pymongo.MongoClient(f"mongodb://{youran.DBIP}:{youran.DBPort}/")["db_weibo"]
+db_client = pymongo.MongoClient(f"mongodb://{youran.DBIP}:{youran.DBPort}/")["db_weibo1"]
 db_proxy = pymongo.MongoClient(f"mongodb://{youran.DBIP}:{youran.DBPort}/")["db_proxy"]
-
+db_liuyan= pymongo.MongoClient(f"mongodb://{youran.DBIP}:{youran.DBPort}/")["db_liuyan"]
 
 class BaseDB():
     def __init__(self,name) -> None:
@@ -29,15 +29,16 @@ class BaseDB():
 
     # @abstractclassmethod    
     def count(self,kv):
-        return self.db.count_documents(kv)
+        # return self.db.count_documents(kv)
+        return self.db.find({}).count()
     def distinct(self,kv):
         return self.db.distinct(kv)
     # @abstractclassmethod
     def exists(self,kv):
         return self.db.count_documents(kv)>0
     def random(self,size=10):
-        # return list(self.db.find({}).limit(size).skip(int(random.random()*self.db.estimated_document_count())))
-        return list(self.db.aggregate([{'$sample': {'size': size}}]))
+        return list(self.db.find({}).limit(size).skip(int(random.random()*self.db.count({}))))
+        # return list(self.db.aggregate([{'$sample': {'size': size}}]))
     @abstractclassmethod
     def page(self):
         pass
@@ -97,14 +98,14 @@ class Hot(BaseDB):
             return _['items']
         else:
             return []
-    def find_hot_ids(self):
-        cur=self.find({})
-        if cur and cur.count():
-            _=cur.sort('_id', direction=-1).next()
-            # print(_)
-            return _['_id']
-        else:
-            return []
+    # def find_hot_ids(self):
+    #     cur=self.find({})
+    #     if cur and cur.count():
+    #         _=cur.sort('_id', direction=-1).next()
+    #         print(_)
+    #         return _['_id']
+    #     else:
+    #         return []
 class HotID(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_hotids')
@@ -130,8 +131,11 @@ class Mblog(BaseDB):
     def counts(self):
         return self.count({})
 
-    def page(self,ids,page=0):
-        result=self.find({"uid": {"$in": [int(id) for id in ids]}}).sort('created_at1', direction=-1).skip(int(page*20)).limit(20)
+    def page(self,ids=None,page=0,direction=-1,num=20):
+        if ids is None:
+            result=self.find({}).sort('created_at1', direction=direction).skip(int(page*num)).limit(num)
+            return result
+        result=self.find({"uid": {"$in": [int(id) for id in ids]}}).sort('created_at1', direction=direction).skip(int(page*num)).limit(num)
         return result
     def current_page(self,id):
         self.distinct({'uid':id})/20
@@ -158,7 +162,8 @@ class States(BaseDB):
 
     def add(self, kvs):
         return self.update({'_id': kvs['name']}, kvs)
-    
+    def counts(self):
+        return self.count({})
 
 class User(BaseDB):
     def __init__(self) -> None:
@@ -169,6 +174,26 @@ class User(BaseDB):
 
     def find_users(self,ids,page=0):
         return list(self.find({"_id": {"$in": ids}}).sort('uid', direction=-1).skip(int(page*20)).limit(20))
+    def counts(self):
+        return self.count({})
+class Liuyan(BaseDB):
+    def __init__(self) -> None:
+        super().__init__('db_liuyan')
+
+    def add(self, kvs):
+        return self.update({'_id': kvs['_id']}, kvs)
+    def counts(self):
+        return self.count({})
+class Tongji(BaseDB):
+    def __init__(self) -> None:
+        super().__init__('db_tongji')
+
+    def add(self, kvs):
+        return self.update({'_id': kvs['_id']}, kvs)
+    def counts(self):
+        return self.count({})
+tongji=Tongji()
+liuyan=Liuyan()
 comment=Comment()
 account=Account()
 user=User()

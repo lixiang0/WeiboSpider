@@ -1,0 +1,59 @@
+{% if dicts['user'] %}
+        <div class="card-content">
+          <p class="subtitle  is-6 has-text-centered"></p>
+          <div class="box">
+            <article class="media">
+              <figure class="media-center">
+                <p class="image is-164x64">
+                  <img src="{{ dicts['user']['profile_image_url'] }}">
+                </p>
+              </figure>
+            </article>
+            <!-- <div class="media-content"> -->
+            <!-- <div class="content has-text-centered"> -->
+
+            <p class='title is-5'>
+
+              <strong>{{ dicts['user']['screen_name'] }}</strong>
+
+              {% if dicts['follow'] %}<a href="/ufollow/{{ dicts['user']['id'] }}">取消关注</a>{% else %}<a
+                href="/follow/{{ dicts['user']['id'] }}">关注</a>{% endif %}
+
+            </p>
+
+            {{ dicts['user']['description'] }}
+
+            <p class='subtitle is-6  '>
+            <div class="media-left"></div>
+            </p>
+            <!-- </div> -->
+
+            <nav class="level">
+              <div class="level-item has-text-centered">
+                <div>
+                  <p class="heading">Tweets</p>
+                  <p class="level-item has-text-centered">{{ dicts['user']['statuses_count'] }}</p>
+                </div>
+              </div>
+              <div class="level-item has-text-centered">
+                <div>
+                  <p class="heading">Following</p>
+                  <p class="level-item has-text-centered">{{ dicts['user']['follow_count'] }}</p>
+                </div>
+              </div>
+              <div class="level-item has-text-centered">
+                <div>
+                  <p class="heading">Followers</p>
+                  <p class="level-item has-text-centered">{{ dicts['user']['followers_count'] }}</p>
+                </div>
+              </div>
+              <!-- <div class="level-item has-text-centered">
+                    <div>
+                      <p class="heading">Likes</p>
+                      <p class="title">789</p>
+                    </div>
+                  </div> -->
+            </nav>
+          </div>
+      
+        {% endif %}

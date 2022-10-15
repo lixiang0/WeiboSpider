@@ -16,7 +16,7 @@
 <p>
     <center>找博文/找人</center>
 </p>
-<form action="/sou" method="POST">
+<!-- <form action="/sou" method="POST">
 <div class="field has-addons ">
     
     <div class="control" >
@@ -34,9 +34,9 @@
 
 
  
-</div></form>
-{% if users %}
-{% for user in users %}
+</div></form> -->
+{% if dicts['users1'] %}
+{% for user in dicts['users1'] %}
 {% include 'blog/uitem.html' %}
 {% endfor %}
 {% endif %}

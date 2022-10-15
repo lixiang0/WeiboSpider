@@ -1,0 +1,24 @@
+<div class="card-content">
+    <p class="subtitle  is-6">
+      可能感兴趣的人
+    </p>
+    <ul>
+      {% for user in dicts['users'] %}
+      <li class='block'>
+        <div class="media">
+          <div class="media-left">
+            <figure class="image is-48x48">
+              <img src="{{ user['profile_image_url'] }}" alt="Placeholder image">
+            </figure>
+          </div>
+          <div class="media-content">
+            <p class="title is-6">{{ user['screen_name'] }}</p>
+            <!-- <p class="subtitle is-6">@johnsmith</p> -->
+            <p class="subtitle is-6"><a href='/u/{{ user['id'] }}' class=" is-6">@{{ user['screen_name'] }}</a>
+            </p>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>

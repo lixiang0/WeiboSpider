@@ -43,6 +43,7 @@ def get_users(uids):
         return infos
     else:
         return None
+
 def get_follows(uid):
     '''
     作用：返回对应uid的关注信息
@@ -117,3 +118,23 @@ def get_fav(uid):
         return list(cur)
     else:
         return []
+
+def add_liuyan(kvs):
+    db.liuyan.add(kvs)
+
+def find_liuyan():
+    return db.liuyan.find({}).sort('_id', direction=-1)
+
+def add_count(kv):
+    kvs=list(db.tongji.find({'_id':kv['filename']}))
+    if kvs and len(kvs)>0:
+        kv['count']=kvs[0]['count']+1
+        db.tongji.add(kv)
+    else:
+        kv['_id']=kv['filename']
+        kv['count']=1
+        db.tongji.add(kv)
+    
+
+def find_count(kv):
+    return db.tongji.find(kv)#.sort('_id', direction=-1)

@@ -1,10 +1,4 @@
-# -*- coding: utf-8 -*-
-import os
-import os
-os.environ['DBIP']='192.168.1.9'
-os.environ['MINIOIP']='192.168.1.9'
-os.environ['DBPort']='27017'
-os.environ['MINIOPort']='9001'
+
 import youran
 from youran import db,net,utils
 from youran.db import *
@@ -20,13 +14,13 @@ main.setLevel(logging.DEBUG)
 while True:
     scount=dict()
     seeds=set()
-    mblogs=youran.db.follow.random(20)
-    for mblog in mblogs:
-        # if 'mblog' in mblog:
-            # seeds.append(mblog['user']['id'])
-        seeds.add(repr(mblog['blogger']))
+    # mblogs=youran.db.follow.random(20)
+    # for mblog in mblogs:
+    #     # if 'mblog' in mblog:
+    #         # seeds.append(mblog['user']['id'])
+    #     seeds.add(repr(mblog['blogger']))
     if len(seeds)==0:
-        seeds=set([1865990891])    
+        seeds=set([6390144374])    
     while len(seeds) != 0:
         uid = seeds.pop()
         if uid in scount:

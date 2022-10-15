@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ['DBIP']='192.168.1.14'
-os.environ['MINIOIP']='192.168.1.9'
-os.environ['DBPort']='27017'
-os.environ['MINIOPort']='9010'
 import youran
 from youran import db,net,utils
 from youran.db import *
@@ -15,15 +11,9 @@ import pika
 import json,io
 main = logging.getLogger('main')
 main.setLevel(logging.DEBUG)
-# handler = logging.FileHandler(f'logs/media.log', mode='w+')
-# handler.setFormatter(logging.Formatter('%(levelname)s - %(asctime)s - %(message)s'))
-# main.addHandler(handler)
-mm=Min()
-# connection = pika.BlockingConnection(
-#     pika.ConnectionParameters(host='localhost'))
-# channel = connection.channel()
 
-# channel.queue_declare(queue='mblogs')
+mm=Min()
+
 while True:
     mblogs = list(youran.db.mblog.random(100))
     with tqdm(total=len(mblogs),postfix=dict,mininterval=0.3) as pbar:
@@ -45,20 +35,5 @@ while True:
             except Exception as e:
                 main.error('error.....retry download............')
                 main.error(repr(e))
-                # main.error(repr(e))
-                # download(mblog)
-            # pbar.set_postfix(**{'total'    : total_loss / (iteration + 1), 
-            #                         'rpn_loc'  : rpn_loc_loss / (iteration + 1),  
-            #                         'rpn_cls'  : rpn_cls_loss / (iteration + 1), 
-            #                         'roi_loc'  : roi_loc_loss / (iteration + 1), 
-            #                         'roi_cls'  : roi_cls_loss / (iteration + 1), 
-            #                         'lr'       : get_lr(optimizer)})
             pbar.update(1)
-    #break
 
-
-                # url_names = net.comments.extract_img(comments)
-                # main.warning(f'解析原微博评论图片：{url_names}')
-                # for (url, name) in url_names:
-                #     min.save_weibo('imgs/'+name, net.download(url))
-    

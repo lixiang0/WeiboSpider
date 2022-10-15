@@ -1,102 +1,60 @@
+<nav class='navbar' role="navigation ">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="https://blog.youran.ai">
+      <!-- <img src="https://avatars.githubusercontent.com/u/8615600?s=400&u=65367ff26f5c86ec65aabdf4d3541aa74a3f91d3&v=4" alt="youran AI" width="112" height="28"> -->
+      <figure class="image is-64x64">
+        <img src="https://avatars.githubusercontent.com/u/8615600?s=400&u=65367ff26f5c86ec65aabdf4d3541aa74a3f91d3&v=4"  alt="youran AI">
+      </figure>
+    </a>
 
-<head>
-  <script>
-document.addEventListener('DOMContentLoaded', () => {
+  </div>
 
-// Get all "navbar-burger" elements
-const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+  <div class="navbar-end">
+    <div class='navbar-item'>
 
-// Check if there are any navbar burgers
-if ($navbarBurgers.length > 0) {
-
-  // Add a click event on each of them
-  $navbarBurgers.forEach( el => {
-    el.addEventListener('click', () => {
-
-      // Get the target from the "data-target" attribute
-      const target = el.dataset.target;
-      const $target = document.getElementById(target);
-
-      // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-      el.classList.toggle('is-active');
-      $target.classList.toggle('is-active');
-
-    });
-  });
-}
-
-});
-    </script>
-</head>
-<nav class="navbar" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-      <a class="navbar-item" href="http://122.51.50.206:8083">
-        <label width="112" height="28">悠然AI</label>
-      </a>
-  
-      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-      </a>
-    </div>
-  
-    <div id="navbarBasicExample" class="navbar-menu">
-      <div class="navbar-start">
-        <a class="navbar-item" href="/u">个人中心
-        </a>
-  
-        <a class="navbar-item" href="/f">我的关注
-        </a>
-  
-        <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link">
-            More
-          </a>
-  
-          <div class="navbar-dropdown">
-            <a class="navbar-item" href="/r/f/20">随机博主
-            </a>
-            <a class="navbar-item" href="/r/blog/20">随机微博
-            </a>
-
-            
-            <a class="navbar-item" href="/fav">我的收藏
-            </a>
-
-            <a class="navbar-item" href="/sou">搜索</a>
-            <hr class="navbar-divider">
-            <a class="navbar-item" href="/about">关于
-            </a>
-          </div>
-        </div>
+      <form action="/sou" method="POST">
+      <div class="field has-addons">
+        <div class="control" >
+          {% if not value %}
+          <input class="input" id="srText" name='tkey' type="text" placeholder="Find a repository">
+          {% else %}
+          <input class="input" id="srText" name='tkey' type="text" placeholder="Find a repository" value="{{ value }}">
+          {% endif %}
       </div>
-  
-      <div class="navbar-end">
-        <div class="navbar-item">
-          <div class="buttons">
-
-            {% if session['uid'] %}
-            <a class="button is-primary" href="/auth/logout">
-                <strong>注销</strong>
-              </a>
-            {% else %}
-            <a class="button is-primary" href="/auth/login">
-                <strong>登录</strong>
-              </a>
-              <a class="button is-light" href="/auth/register">
-                <strong>注册</strong>
-              </a>
-
-            {% endif %}
-
-        
-          </div>
-        </div>
+        <p class="control">
+          <button class="button">
+            Search
+          </button>
+        </p>
       </div>
+    </form>
     </div>
+    <div class="navbar-item">
 
-    <div class="navbar-burger">
-     
+      {% if session['uid'] %}
+      <a class="button is-primary" href="/auth/logout">
+          <strong>注销</strong>
+        </a>
+      {% else %}
+      <a class="button is-primary" href="/auth/login">
+          <strong>登录</strong>
+        </a>
+        <a class="button is-light" href="/auth/register">
+          <strong>注册</strong>
+        </a>
+
+      {% endif %}
+
+
+      <!-- <div class="buttons">
+        <a class="button is-primary">
+          <strong>Sign up</strong>
+        </a>
+        <a class="button is-light">
+          Log in
+        </a>
+      </div> -->
     </div>
-  </nav>
+  </div>
+
+</nav>

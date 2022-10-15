@@ -13,24 +13,23 @@
 {% block nav %} {{ super() }}{% endblock %}
 
 {% block content %}
-
-<div
-style="margin:20px auto;vertical-align:middle;margin-top:40px;padding:20px;border-radius:20px;border: 1px solid rgb(252, 249, 249);background:#f7f3f3;letter-spacing:2px;font-size:22px;width:80%;">
-<p>本网站用于对微博爬虫的展示。Github地址：<a href="https://github.com/lixiang0/weibo">点击链接</a></p>
+<div class="box">
+<div class="content is-large">
+    <p>本网站用于对微博爬虫的展示。Github地址：<a href="https://github.com/lixiang0/weibo">点击链接</a></p>
 <p>欢迎关注公众号：悠然AI</p>
 <p> 联系邮箱：lingyunzi09#gmail.com</p>
-<p>抓取博文总{{ count }}条,博主{{ authors }}个</p>
+<p>抓取博文总{{ dicts['count'] }}条,博主{{ dicts['authors'] }}个</p>
 <P>当前爬取状态：</P>
-{% for state in states %}
-<p>{{ state['name'] }}:{{ state['update_time'] }}</p>
+{% for state in dicts['states'] %}
+<p>{{ state['name'] }}{{ state['update_time'] }}</p>
 {% endfor %}
 <p>Made By <img src="https://github.githubassets.com/favicon.ico"> <a
         href="https://blog.youran.ai">Rubenxiao</a></p>
-</div>
+    </div></div>
 
 
 {% endblock %}
 
-{% block card0 %} {{ super() }}{% endblock %}
+<!-- {% block card0 %} {{ super() }}{% endblock %}
 {% block card %} {{ super() }}{% endblock %}
-{% block footer %} {{ super() }}{% endblock %}
+{% block footer %} {{ super() }}{% endblock %} -->

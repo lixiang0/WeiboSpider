@@ -14,7 +14,7 @@ if os.path.exists('results/firefox_cookie.json'):
         cookies[k['KeyName']]=k['Value']
 else:
     cookies=None
-    
+print(cookies) 
 pc={
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/76.0.3809.100 Chrome/76.0.3809.100 Safari/537.36',
                        'Accept': '*/*',

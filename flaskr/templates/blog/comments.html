@@ -1,14 +1,55 @@
 
 
-{% if comments['ok']==1 %}
-<article class="message is-small">
-    <div class="message-header">
-      <p>评论：</p>
-    </div>
-    {% for comment in comments['data']['data'] %}
-    <div class="message-body">
-        <p>{{ comment["user"]["screen_name"] }}:{{ comment["text"]|safe }}</p>
-    </div>
+{% if dicts['comments']['ok']==1 %}
+<article class="block">
+  <!-- <div class="message-header"> -->
+    <p>评论：</p>
+  <!-- </div> -->
+  <!-- <div class="message-body"> -->
+    {% for comment in dicts['comments']['data']['data'] %}
+    <article class="media">
+      <figure class="media-left">
+        <p class="image is-32x32">
+          <img src="{{ comment['user']['profile_image_url'] }}">
+        </p>
+      </figure>
+      <div class="media-content">
+        <div class="content">
+          <p>
+            <strong><a href='/u/{{ comment['user']['id'] }}'>{{ comment['user']['screen_name'] }}</a></strong>
+            <br>
+            {{ comment["text"]|safe }}
+            <br>
+            <small><a>Like</a> · <a>Reply</a> · {{ comment['created_at'] }}</small>
+          </p>
+        </div>
+        {% if comment['comments']  %}
+              {% for ch_comment in comment['comments'] %}
+                <article class="media">
+                  <figure class="media-left">
+                    <p class="image is-32x32">
+                      <img src="{{ ch_comment['user']['profile_image_url'] }}">
+                    </p>
+                  </figure>
+                  <div class="media-content">
+                    <div class="content">
+                      <p>
+                        <strong><a href='/u/{{ ch_comment['user']['id'] }}'>{{ ch_comment['user']['screen_name'] }}</a></strong>
+                        <br>
+                        {{ ch_comment["text"]|safe }}<br>
+                        <small><a>Like</a> · <a>Reply</a> · {{ ch_comment['created_at'] }}</small>
+                      </p>
+                    </div>
+                  </div>
+                </article>
+                {% endfor %}
+          {% endif %}
+      </div>
+    </article>
     {% endfor %}
+  <!-- </div> -->
   </article>
-  {% endif %}
+{% endif %}
+
+
+  

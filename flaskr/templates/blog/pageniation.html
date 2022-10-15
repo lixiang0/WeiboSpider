@@ -1,11 +1,11 @@
-{% if blogs %}
+{% if dicts['blogs'] %}
 <div class="pagination main">
-    {% if curr>1 %}
+    {% if dicts['curr']>1 %}
 
-    {% if user %}
-    <a href='/u/{{ user['id'] }}?page={{ curr-1 }}'>上一页</a>
+    {% if dicts['user'] %}
+    <a href='/u/{{ dicts['user']['id'] }}?page={{ dicts['curr']-1 }}'>上一页</a>
     {% else %}
-    <a href='/u?page={{ curr-1 }}'>上一页</a>
+    <a href='/u?page={{ dicts['curr']-1 }}'>上一页</a>
     {% endif %}
     {% else %}
     <a >没有了</a>
@@ -19,10 +19,10 @@
     <a href="#">6</a> -->
     <!-- <a href="#">&raquo;</a> -->
 
-    {% if user %}  
-    <a href='/u/{{ user['id'] }}?page={{ curr+1 }}'>下一页</a>
+    {% if dicts['user'] %}  
+    <a href='/u/{{ dicts['user']['id'] }}?page={{ dicts['curr']+1 }}'>下一页</a>
     {% else %}
-    <a href='/u?page={{ curr+1 }}'>下一页</a>
+    <a href='/u?page={{ dicts['curr']+1 }}'>下一页</a>
     {% endif %}
   </div>
   {% endif %}

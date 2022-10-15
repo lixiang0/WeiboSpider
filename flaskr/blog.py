@@ -25,7 +25,11 @@ def index():
     # return render_template('base1.html')#,count=count,authors=authors)
     if 'uid' in session:
         return redirect(url_for('blog.uindex'))
-    return render_template('auth/login.html',items=dbutils.get_hot())
+    para={
+        'items':dbutils.get_hot(),
+        'users':dbutils.random_user(10),
+    }
+    return render_template('auth/login.html',dicts=para)
 
 
 @bp.route('/u/<uid>')
@@ -38,9 +42,10 @@ def uindex(uid=None):
     参数：uid，可以为空；
     return：
     '''
-    pagenum=int(request.args.get('page',1))
-    if pagenum<1:
-        pagenum=1
+    pagenum=int(request.args.get('page',0))
+    if pagenum<0:
+        pagenum=0
+    # pagenum-=1
     LOG.info('-'*100)
     LOG.info('action:用户首页')
     LOG.info(f'uid:{uid}')
@@ -48,16 +53,18 @@ def uindex(uid=None):
     userinfo=None
     blogs=[]
     _ulist=[]
+    follow=False
     if uid:
         LOG.info('uid不为空，显示uid的主页，只获取用户信息')
         userinfo=dbutils.get_user(uid=uid)
         _ulist=[int(uid)]
+        follow=True if int(uid) in  [int(u['blogger']) for u in list(dbutils.get_follows(int(session['uid'])))] else False
     else :
         LOG.info(f"登录用户为{int(session['uid'])}")
         LOG.info(f'uid为空，但已登录，显示登录用户主页，获取用户和关注信息')
         #注意：这里有可能userinfo为空，因为uid是用户注册设置的
         _ulist = [u['blogger'] for u in dbutils.get_follows(session['uid'])]
-        LOG.info(f"关注信息为{_ulist}")
+    LOG.info(f"关注信息为{_ulist}")
     _datas=dbutils.get_page(_ulist,pagenum)
     # print(_datas)
     for data in _datas:
@@ -69,10 +76,18 @@ def uindex(uid=None):
         blogs.append(data)
         LOG.info(data)
     LOG.info('END')
-    # LOG.info(blogs)
+    LOG.info(len(blogs))
     LOG.info(userinfo)
     LOG.info('-'*100)
-    return render_template('base.html',blogs=list(blogs),curr=pagenum,user=userinfo,items=dbutils.get_hot())
+    para={
+        'follow':follow,
+        'blogs':list(blogs),
+        'curr':pagenum,
+        'user':userinfo,
+        'items':dbutils.get_hot(),
+        'users':dbutils.random_user(10),
+    }
+    return render_template('base.html',dicts=para)
 
     
 
@@ -87,14 +102,28 @@ def get_follows(uid=None):
     LOG.info(f'follows:{follows}')
     users = dbutils.get_users(list(follows))
     LOG.info(f'users:{users}')
-    return render_template('blog/follows.html',users=list(users),follow=True,items=dbutils.get_hot())
+    para={
+        # 'blogs':list(blogs),
+        'follow':True,
+        'users1':users,
+        'items':dbutils.get_hot(),
+        'users':dbutils.random_user(10),
+    }
+    return render_template('blog/follows.html',dicts=para)
 
 
 @bp.route('/r/blog/<num>')
 @cross_origin()
 def get_random_20(num):
     blogs=dbutils.random_blog(num)
-    return render_template('base.html',blogs=blogs,items=dbutils.get_hot(),curr=1)
+    para={
+        'blogs':list(blogs),
+        'curr':0,
+        # 'user':userinfo,
+        'items':dbutils.get_hot(),
+        # 'users':dbutils.random_user(10),
+    }
+    return render_template('base.html',dicts=para)
 
 
 
@@ -102,13 +131,28 @@ def get_random_20(num):
 @cross_origin()
 def get_random_follows(num):
     users = dbutils.random_user(num)
-    return render_template('blog/follows.html',users=list(users))
+    para={
+        # 'blogs':list(blogs),
+        # 'curr':pagenum,
+        # 'user':userinfo,
+        # 'items':dbutils.get_hot(),
+        'users':dbutils.random_user(10),
+    }
+    return render_template('blog/follows.html',dicts=para)
 @bp.route('/about')
 def about():
-    count=dbutils.db.mblog.count({})
-    authors=dbutils.db.user.count({})
+    count=dbutils.db.mblog.counts()
+    authors=dbutils.db.user.counts()
     states=dbutils.db.states.find({})
-    return render_template('about.html',count=count,authors=authors,user=None,states=states,items=dbutils.get_hot())
+    para={
+        'count':count,
+        'authors':authors,
+        'user':None,
+        'items':dbutils.get_hot(),
+        'users':dbutils.random_user(10),
+        'states':dbutils.db.states.find({})
+    }
+    return render_template('about.html',dicts=para)
     # return render_template('me.html')
 @bp.route('/hot/<url>')
 def hot(url):
@@ -116,19 +160,29 @@ def hot(url):
     mblogs=[]
     count=dbutils.db.mblog.count({})
     authors=dbutils.db.user.count({})
+    url=f'https://weibo.com/a/hot/{url}'
     bids=dbutils.get_hot_bids(url)
     LOG.info(bids)
     for bid in bids:
         # utils.download_mblog({'bid':bid,'isLongText':True},'uid','current_page','total_page')
         mblog=dbutils.get_mblog_bid(bid)
-        _, video_name = dbutils.net.video.extract(mblog)
-        if video_name is not None:
-            mblog['video_name']=video_name
-        if 'retweeted_status' in mblog:
-            mblog['retweeted_status']['video_name']=video_name
-        # print(mblog)
-        mblogs.append(mblog)
-    return render_template('base.html',blogs=list(mblogs),count=count,authors=authors,curr=1,items=dbutils.get_hot())
+        if mblog:
+            _, video_name = dbutils.net.video.extract(mblog)
+            if video_name is not None:
+                mblog['video_name']=video_name
+            if 'retweeted_status' in mblog:
+                mblog['retweeted_status']['video_name']=video_name
+            # print(mblog)
+            mblogs.append(mblog)
+    para={
+        'blogs':list(mblogs),
+        'count':count,
+        'authors':authors,
+        'curr':1,
+        'items':dbutils.get_hot(),
+        'users':dbutils.random_user(10),
+    }
+    return render_template('base.html',dicts=para)
 @bp.route('/b/<bid>')
 def blog(bid):
     mblog=dbutils.get_mblog_bid(bid)
@@ -138,8 +192,14 @@ def blog(bid):
     if 'retweeted_status' in mblog:
         mblog['retweeted_status']['video_name']=video_name
     comments=dbutils.get_comment(mblog['_id'])
-
-    return render_template('blog/index.html',blog=mblog,comments=comments,items=dbutils.get_hot())
+    para={
+        'blogs':[mblog],
+        'comments':comments,
+        # 'user':userinfo,
+        'items':dbutils.get_hot(),
+        'users':dbutils.random_user(10),
+    }
+    return render_template('blog/index.html',dicts=para)
 @bp.route('/fav/<bid>')
 @bp.route('/fav')
 @login_required
@@ -158,19 +218,27 @@ def fav(bid=None):
             LOG.info(bids)
             mblogs = dbutils.get_mblog_bids(bids)
             # print(list(mblogs))
-            return render_template('base.html',blogs=list(mblogs),items=dbutils.get_hot(),fav=True,curr=1)
+            para={
+                'blogs':list(mblogs),
+                'fav':True,
+                'curr':1,
+                'items':dbutils.get_hot(),
+                'users':dbutils.random_user(10),
+            }
+            return render_template('base.html',dicts=para)
     else:
         return redirect(url_for('auth.login'))
 # {'_id': str(uid)+str(user['id']), 'fans': int(uid), 'blogger': int(user['id'])}
 @bp.route('/follow/<fuid>')
 @login_required
 def follow(fuid):
-    print('fuid:',fuid)
+    LOG.info('执行关注操作\n*****************************************')
+    LOG.info(f'关注用户:{fuid}')
     if 'uid' in session:
-        print('login in ',session['uid'])
+        uid=session['uid']
+        LOG.info(f'登录用户:{uid}')
         if fuid:
-            uid=session['uid']
-            if dbutils.is_follow(id,fuid):
+            if dbutils.is_follow(uid,fuid):
                 return 'follow duplicated'
             if not dbutils.add_follow(uid,fuid):
                 LOG.info('add failed..')
@@ -200,15 +268,22 @@ def sousuo():
         value=request.form['tkey']
         LOG.info('搜索内容:'+value)
         # ttype=request.form['ttype']
+
     results=None
-    
     # print(value,ttype)
     if value:
         results=list(dbutils.db.user.find({'screen_name':{'$regex':value}}))
     # results=list(youran.db.mblog.db_mblogs.find({'text':{'$regex':value}}).limit(20))
     LOG.info('搜索结果:')
     LOG.info(results)
-    return render_template('blog/sou.html',users=results,value=value,items=dbutils.get_hot())
+    para={
+        # 'blogs':list(blogs),
+        'users1':results,
+        'value':value,
+        'items':dbutils.get_hot(),
+        'users':dbutils.random_user(10),
+    }
+    return render_template('blog/sou.html',dicts=para)
 
 @bp.route('/send', methods=['POST'])
 def send():

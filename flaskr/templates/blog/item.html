@@ -1,5 +1,7 @@
 
-<div class="box">
+
+
+<!-- <div class="box"> -->
     <article class="media">
       <div class="media-left">
         <figure class="image is-64x64">
@@ -32,31 +34,46 @@
           {% if blog['retweeted_status'] %}
           <!-- <div class="box"> -->
             <article class="media">
-              <div class="media-left">
+              <!-- <div class="media-left">
                 <figure class="image is-48x48">
                   <img src="{{ blog['retweeted_status']['user']['profile_image_url'] }}" alt="Image">
                 </figure>
-              </div>
+              </div> -->
               <div class="media-content">
                 <div class="content">
                   <p>
-                    <strong><a href='/u/{{ blog['user']['id'] }}'>@{{ blog['retweeted_status']['user']['screen_name'] }}</a></strong> <small><a href='/b/{{ blog['retweeted_status']['bid'] }}'>查看原文</a></small>
+                    <strong><a href='/u/{{ blog['retweeted_status']['user']['id'] }}'>@{{ blog['retweeted_status']['user']['screen_name'] }}</a></strong> <small><a href='/b/{{ blog['retweeted_status']['bid'] }}'>查看原文</a></small>
                     <br>
                     发表于{{ blog['retweeted_status']['created_at'] }}<br>来自{{ blog['retweeted_status']['source'] }}<br>
                     {{ blog['retweeted_status']['text']|safe }}
                     {% if blog['retweeted_status']['pics'] %}<br>
-                    <table class="table">
-                        {% for pic in blog['retweeted_status']['pics'] %}
+                    <!-- <div class="container"> -->
+                    <!-- <div class="columns  is-gapless"> -->
+                      
+                      <!-- <figure class="image is-128x128"> -->
+                        {% for pic in blog['retweeted_status']['pics'][:3] %}
+                        <!-- <div class="column is-one-fifth"> -->
                         <!-- <image class="lazy" lazyload="true" data-original='/static/imgs/{{ pic['large']['url'].split('/')[-1] }}'></image> -->
-                        <img width=300px src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}" alt="">
+                        <img width=200px src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}" alt="">
+                        <!-- <figure class="image is-128x128">
+                          <img src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}">
+                        </figure> -->
+                      <!-- </div> -->
+                          <!-- <img class="has-ratio" width="640" height="360" src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}"> -->
                         {% endfor %}
-                    </table>
+                      <!-- </figure> -->
+                      </div>
+                    <!-- </div> -->
                     {% endif %}
                     {% if blog['retweeted_status']['video_name'] %}<br>
                     <!-- <video autoplay='false' width=300px controls> -->
                     <video width=300px controls>
                         <source src='/static/videos/{{ blog['retweeted_status']['video_name'] }}' type='video/mp4'>
                     </video>
+
+                    <figure class="image is-16by9">
+                      <iframe class="has-ratio" width="640" height="360" src="/static/videos/{{ blog['retweeted_status']['video_name'] }}" frameborder="0" allowfullscreen></iframe>
+                    </figure>
                     <!-- </video> -->
                     {% endif %}
                   </p>
@@ -83,16 +100,19 @@
             </a>
             <a class="level-item right" aria-label="like">
               <!-- <span class="icon is-small"> -->
-                {% if fav %}<a href="/ufav/{{ blog['bid'] }}">取消点赞</a>{% else %}<a
+                {% if dicts['fav'] %}<a href="/ufav/{{ blog['bid'] }}">取消点赞</a>{% else %}<a
                 href="/fav/{{ blog['bid'] }}">点赞</a>{% endif %}： {{ blog['attitudes_count'] }}
                 <i class="fas fa-heart" ></i>
               <!-- </span> -->
             </a>
           </div>
         </nav>
+      {% if dicts['comments'] %}
+        {% include 'blog/comments.html' %}
+      {% endif %}
       </div>
     </article>
-  </div>
+  <!-- </div> -->
 
 
 

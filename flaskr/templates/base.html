@@ -2,106 +2,70 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-  <!-- <link rel="stylesheet" href="/static/index.css"> -->
-  <script type="text/javascript" src="/static/lazyload.js"></script>
 
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>个人主页</title>
+  <link rel="stylesheet" href="/static/bulma.min.css">
 </head>
 
-
-
 <body>
-  {% block header %} <div class='container' style="background:url(/static/44.jpg)">
-    <div class='section is-medium'>
-      <center>
-        <h1>youran.ai</h1>
-      </center>
-    </div>
+
+  {% block nav %}
+  <!-- 最上的导航页 -->
+  <div class='container'>
+    {% include 'nav.html' %}
   </div>
   {% endblock %}
 
-  {% block nav %}
-  <div class='container'>
-    {% include 'nav.html' %}</div>
 
-
-  {% endblock %}
-  <div class='container'>
-    <div class="columns">
-   
-        <div class="column block">
-          <div id="content">
-            {% block content1 %}
-            content
-            {% endblock %}
-          </div>
-       
+  <div class="container is-widescreen ">
+    <div class="columns  ">
+      <div class="column is-2">
+        <!-- 左侧的导航页 -->
+        {% block menu %}
+        {% include 'menu.html' %}
+        {% endblock %}
       </div>
 
-   
-        <div class="column is-two-thirds block">
+      <div class="column  is-6">
+
+        <div class='block'>
+          <!-- 博文内容 -->
           <div id="content">
             {% block content %}
-            {% for blog in blogs %}
+            {% for blog in dicts['blogs'] %}
             {% include 'blog/item.html' %}
-
             {% else %}
             暂时没有内容
             {% endfor %}
             {% include 'blog/pageniation.html' %}
             {% endblock %}
           </div>
-     
-      </div>
-  
-        <div class="column is-one-fifth">
-          {% block card0 %}
-          <div class="card">
-
-            {% if user %}
-            <h2>About</h2>
-            <image class="photo" src="{{ user['profile_image_url'] }}"></image>
-            <p><em>{{ user['screen_name'] }}</em></p>
-            <p><em>{{ user['description'] }}</em></p>
-
-            <div class='bottom'>
-              <div style='flex: 1'>{{ user['follow_count'] }}<br>关注 </div>
-              <div style='flex: 1;text-align: center;'>{{ user['followers_count'] }}<br>粉丝 </div>
-              <div style='flex:1;text-align: right;'>{{ user['statuses_count'] }}<br>微博 </div>
-            </div>
-
-            {% endif %}
-    
         </div>
+      </div>
+
+      <div class="column is-4">
+
+        <!-- 用户基本信息 -->
+        {% block userinfo %}
+        {% include 'userinfo.html' %}
+        {% endblock %}
+    
+        <!-- 热搜 -->
+        {% block resou %}
+        {% include 'resou.html' %}
+        {% endblock %}
+        <!-- 推荐 -->
+        {% block tuijian %}
+        {% include 'tuijian.html' %}
         {% endblock %}
 
-        <div class="card">
-          {% block card1 %}
-          <h3>实时热点</h3>
-          <!-- <div class="fakeimg"> -->
-          {% for item in items %}
-          <div><a href='/hot/{{ item[1] }}'>{{ item[0] }}</a></div>
-          {% endfor %}
-          {% endblock %}
-        </div>
-        <div class="card">
-          {% block card2 %}
-          <h3>Follow Me</h3>
-          <p>Some text..</p>
-          {% endblock %}
-        </div>
+
       </div>
     </div>
   </div>
 
-  <footer class="footer">
-    <div class="content has-text-centered">
-      <p>
-        <strong>youranWeibo</strong> by <a href="http://122.51.50.206:8083">youranAI</a>. The source code is licensed
-        <a href="http://opensource.org/licenses/mit-license.php">MIT</a>. The website content
-        is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
-      </p>
-    </div>
-  </footer>
-
 </body>
+
+</html>

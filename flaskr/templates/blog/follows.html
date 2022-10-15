@@ -9,10 +9,12 @@
 {% block nav %} {{ super() }}{% endblock %}
 
 {% block content %}
-{% if users %}
-{% for user in users %}
+{% if dicts['users1'] %}
+{% for user in dicts['users1'] %}
 {% include 'blog/uitem.html' %}
 {% endfor %}
+{% else %}
+没有关注者
 {% endif %}
 {% endblock %}
 

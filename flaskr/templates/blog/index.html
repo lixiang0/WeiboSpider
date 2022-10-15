@@ -12,8 +12,12 @@
 {% endblock %}
 {% block content %}
 
+{% for blog in dicts['blogs'] %}
 {% include 'blog/item.html' %}
-{% include 'blog/comments.html' %}
+{% else %}
+暂时没有内容
+{% endfor %}
+
 {% endblock %}
 
 

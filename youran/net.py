@@ -4,6 +4,12 @@ from . import db
 import requests,tqdm,io,re
 from scrapy.selector import Selector
 import urllib
+import socket
+import requests.packages.urllib3.util.connection as urllib3_cn
+def allowed_gai_family():
+    family = socket.AF_INET # force IPv4
+    return family
+urllib3_cn.allowed_gai_family = allowed_gai_family
 class BaseNet():
     @staticmethod
     def baseget(url,cookie=False,header='pc',proxy=True):
@@ -98,8 +104,9 @@ class Follow(BaseNet):
 
 class Hot(BaseNet):
     def get(self):
-        hot_url='https://weibo.com/a/hot/realtime?display=0&retcode=6102'
-        hot_text_response = self.baseget(hot_url,header='pc',cookie=True)
+        hot_url='https://www.weibo.com/a/hot/realtime?display=0&retcode=6102'
+        # hot_url='https://weibo.com/a/hot/realtime?display=0&retcode=6102'
+        hot_text_response = self.baseget(hot_url,cookie=True)
         # print(hot_text_response)
         lists=Selector(text=hot_text_response).xpath('//div[@node-type="feed_list"]').xpath('//div[@action-type="feed_list_item"]').getall()
         if len(lists)==0:
@@ -109,15 +116,12 @@ class Hot(BaseNet):
         for li in lists:
             text=Selector(text=li).xpath('//a[@class="S_txt1"]/text()').get()
             href=Selector(text=li).xpath('//a[@class="S_txt1"]').attrib['href']
-            print(text,href)
-            url,bids=self._get_detail(href)
-            print(url)
-            results.append((text,url.split('/')[-1],bids))
+            results.append((text,href))
         return results
-    def _get_detail(self,url):
+    def get_detail(self,url):
         # print(url)
         url='https://weibo.com/a/hot/'+url+'&display=0&retcode=6102' if '/a/hot/' not in url else 'https://weibo.com'+url
-        detail_response=self.baseget(url,header='pc',cookie=True)
+        detail_response=self.baseget(url,header='pc1',cookie=True)
         # print(detail_response)
         lists=Selector(text=detail_response).xpath('//div[@node-type="feed_list"]').xpath('//div[@action-type="feed_list_item"]').getall()
         # print(url,lists)
@@ -153,10 +157,12 @@ class Mblog(BaseNet):
     # https://weibo.com/ajax/statuses/mymblog?uid=2014433131&page=1238
     def extract_mblogs1(self,uid, page=1,cookie=False,proxy=False):
         # page_url=f'https://weibo.com/ajax/statuses/mymblog?uid={uid}&page={page}&feature=0'
-        next_url = f'https://weibo.com/ajax/statuses/mymblog?uid={uid}&page={page}'
+        # 1663072851
+        next_url=f'https://m.weibo.cn/api/container/getIndex?containerid=230413{uid}_-_WEIBO_SECOND_PROFILE_WEIBO&page_type=03&page={page}'
+        # next_url = f'https://weibo.com/ajax/statuses/mymblog?uid={uid}&page={page}'
         obj=None
         try:
-            # print('next_url:',next_url)
+            print('next_url:',next_url)
             res = self.baseget(next_url,cookie=cookie,proxy=proxy)
             # print(res)
             if '100005' in res:
@@ -166,7 +172,9 @@ class Mblog(BaseNet):
             return -3,repr(e) #网络错误
         mblogs = []
         if obj['ok'] == 1:
-            mblogs = obj['data']['list']
+            for card in obj['data']['cards']:
+                if card['card_type']==9:
+                    mblogs.append(card['mblog']) 
         else:
             return -1,obj #可能需要重新登录
         return 0, mblogs
@@ -246,13 +254,17 @@ class Mblog(BaseNet):
         res['_id'] = res['mid']
         return res
 class User(BaseNet):
-    def get(id):
-        res = self.baseget(f'https://m.weibo.cn/profile/info?uid={id}')
+    def get(self,id):
+        url=f'https://m.weibo.cn/api/container/getIndex?uid={id}&t=0&luicode=10000011&lfid=100103type%3D3%26q%3D3164402322%26t%3D0&containerid=1005053164402322'
+        # url=f'https://m.weibo.cn/profile/info?uid={id}'
+        # print(url)
+        res = self.baseget(url,header='')
         if '用户不存在' in res:
             return None
+        # print(res)
         obj = json.loads(res)
         if obj['ok'] == 1:
-            user = obj['data']['user']
+            user = obj['data']['userInfo']
             user['_id'] = id
             return user
         else:
@@ -262,6 +274,8 @@ class Video(BaseNet):
     def extract(self,mblog):
         # 解析视频地址video:mblog['mblog']['page_info']['media_info']['stream_url']
         # 字段的示例参考10.×.py文件
+        if not mblog:
+            return None,None
         object_id = ''
         if 'page_info' in mblog.keys():
             if mblog['page_info']['type'] == 'video':

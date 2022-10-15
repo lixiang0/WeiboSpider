@@ -59,9 +59,9 @@ def login():
                 LOG.info(f'当前登录用户为：{session["uid"]}')
                 return redirect(url_for('blog.index'))
         else:
-            return render_template('auth/login.html',items=dbutils.get_hot())
+            return render_template('auth/login.html',dicts={'items':dbutils.get_hot()})
     else:
-        return render_template('auth/login.html',items=dbutils.get_hot())
+        return render_template('auth/login.html',dicts={'items':dbutils.get_hot()})
 @bp.route('/logout', methods=[ 'GET','POST'])
 def logout():
     session.pop('uid', None)
@@ -78,4 +78,5 @@ def signup():
             get_db().account.add({'_id':request.form['uid'],'uname':request.form['uname'],'psw':request.form['psw']})
             session['uid']=request.form['uid']
             return redirect(url_for('blog.index'))
-    return render_template('auth/register.html',items=dbutils.get_hot())
+        
+    return render_template('auth/register.html',dicts={'items':dbutils.get_hot()})
