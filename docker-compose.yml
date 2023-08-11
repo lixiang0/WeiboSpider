@@ -3,28 +3,7 @@ services:
   all:
     build: .
     image: 'weibo_all:2'
-    command: python3 get_all.py
-    restart: unless-stopped
-  my:
-    build: .
-    image: 'weibo_my:2'
-    command: python3 get_my.py
-    restart: unless-stopped
-
-  follow:
-    build: .
-    image: 'weibo_follow:2'
-    command: python3 get_follow.py
-    restart: unless-stopped
-  hot:
-    build: .
-    image: 'weibo_hot:2'
-    command: python3 get_hot.py
-    restart: unless-stopped
-  media:
-    build: .
-    image: 'weibo_media:2'
-    command: python3 get_media.py
+    command: python3 main.py
     restart: unless-stopped
   web:
     build: .
