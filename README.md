@@ -1,6 +1,6 @@
 
 
-# [悠然微博](http://1.14.73.45:18088/)：微博爬虫、微博本地化部署
+# [悠然微博](http://1.14.73.45:18089/)：微博爬虫、微博本地化部署
 
 ## 【文档不完善，继续补充中。】
 
@@ -76,7 +76,7 @@ docker run \
 
 # 4.部署
 # 注意docker-compose.yml里面的mongodb和minio的地址
-sudo docker-compose up -d --build
+sudo docker-compose up -d --build [all/web/my/follow/hot](可选)
 ```
 
 

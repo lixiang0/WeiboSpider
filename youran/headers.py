@@ -4,7 +4,13 @@ mobile = {
 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
 'accept-encoding': 'gzip, deflate, br',
 'accept-language': 'en,zh-CN;q=0.9,zh;q=0.8',
-
+}
+img = {
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Mobile Safari/537.36',
+'accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+'accept-encoding': 'gzip, deflate, br',
+'accept-language': 'en,zh-CN;q=0.9,zh;q=0.8',
+'referer': 'https://m.weibo.cn/'
 }
 cookies=dict()
 import os

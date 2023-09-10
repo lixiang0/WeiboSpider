@@ -24,8 +24,8 @@ class BaseNet():
         return r.text
 
     @staticmethod
-    def download(url,progress=False):
-        response=requests.get(url, headers=headers.mobile, stream=True,timeout=30,verify=False,proxies=db.proxy.get_randomip())
+    def download(url,progress=False,headers=headers.mobile):
+        response=requests.get(url, headers=headers, stream=True,timeout=30,verify=False,proxies=db.proxy.get_randomip())
         if response.status_code!=200:
             return None
         if 'Content-length' not in response.headers:

@@ -5,7 +5,7 @@ from youran import db,net,utils,logger
 
 from youran.disks import Min
 import math
-
+from . import headers
 min = Min()
 def download_media(mblog):
         # main.warning(mblog.keys())
@@ -17,7 +17,7 @@ def download_media(mblog):
             logger.warning('该图片存在，跳过。。。')
             return True
         logger.warning(f'开始下载图片，URL:{url}')
-        content=youran.net.img.download(url,progress=True)
+        content=youran.net.img.download(url,progress=True,headers=headers.img)
         if content is None:
             logger.warning('图片链接过时，跳过')
             return False
