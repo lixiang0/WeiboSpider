@@ -33,6 +33,7 @@ def kuaidaili():
             ping=tds[5]
             validate_time=tds[6]
             youran.db.proxy.add({'_id':ip,'ip':ip,'niming':niming,'leixing':leixing,'location':location,'ping':ping,'alive':'None','validate_time':validate_time,'score':1})
+            print(ip,niming,leixing,location)
         time.sleep(45)
 
 # def kuaidaili():

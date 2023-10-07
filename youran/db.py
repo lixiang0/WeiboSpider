@@ -4,7 +4,7 @@ import random,time
 import pymongo
 import youran
 
-db_client = pymongo.MongoClient(f"mongodb://{youran.DBIP}:{youran.DBPort}/")["db_weibo1"]
+db_client = pymongo.MongoClient(f"mongodb://{youran.DBIP}:{youran.DBPort}/")["db_weibo"]
 db_proxy = pymongo.MongoClient(f"mongodb://{youran.DBIP}:{youran.DBPort}/")["db_proxy"]
 db_liuyan= pymongo.MongoClient(f"mongodb://{youran.DBIP}:{youran.DBPort}/")["db_liuyan"]
 
@@ -18,7 +18,8 @@ class BaseDB():
             return True
         except pymongo.errors.DuplicateKeyError:
             return False
-
+    def add(self, kvs):
+        return self.update({'_id': kvs['_id']}, kvs)
     
     def find(self,kv):
         return self.db.find(kv)
@@ -27,10 +28,19 @@ class BaseDB():
     def delete(self,kv):
         return self.db.delete_many(kv)
 
-    # @abstractclassmethod    
-    def count(self,kv):
-        # return self.db.count_documents(kv)
-        return self.db.find({}).count()
+    '''
+    返回表中的条目总数
+    para: kv key-value
+    return: int 表中的总数
+    '''   
+    def counts(self,kv):
+        return self.db.find(kv).count()
+    
+    '''
+    返回表中的条目去重后的总数
+    para: kv key-value
+    return: int
+    '''   
     def distinct(self,kv):
         return self.db.distinct(kv)
     # @abstractclassmethod
@@ -46,15 +56,11 @@ class Comment(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_comments')
 
-    def add(self, kvs):
-        return self.update({'_id': kvs['_id']}, kvs)
 
 class Account(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_count')
 
-    def add(self, kvs):
-        return self.update({'_id': kvs['_id']}, kvs)
     def find_user(self,uname):
         return list(self.find({'uname':uname}))
 
@@ -64,25 +70,25 @@ class Fav(BaseDB):
 
     def add(self, kvs):
         return self.update({'_id': kvs['uid']+'$'+kvs['bid']}, kvs)
+
+
 class Follow(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_follower')
-
-    def add(self, kvs):
-        return self.update({'_id': kvs['_id']}, kvs)
-
-
     def bloggers(self):
         return set([d['blogger'] for d in self.find({})])
 
     #找到所有的关注
     #_id=uid+blogger_id    fans:uid  blogger: blogger_id
-    def find_follows(self,id=None,page=0):
+    def find_follows(self,id=None,page=-1):
         flts={}
         if id:
             flts={'_id':{'$regex':f'^{id}[0-9]+'}}
+        if page == -1:
+            return list(self.find(flts))
         return list(self.find(flts).skip(int(page*20)).limit(20))
-
+        
+        
 class Hot(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_hot')
@@ -94,18 +100,9 @@ class Hot(BaseDB):
         cur=self.find({})
         if cur and cur.count():
             _=cur.sort('_id', direction=-1).next()
-            # print(_)
             return _['items']
         else:
             return []
-    # def find_hot_ids(self):
-    #     cur=self.find({})
-    #     if cur and cur.count():
-    #         _=cur.sort('_id', direction=-1).next()
-    #         print(_)
-    #         return _['_id']
-    #     else:
-    #         return []
 class HotID(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_hotids')
@@ -116,20 +113,14 @@ class HotID(BaseDB):
 class Log(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_log')
-
-    def add(self, kvs):
-        return self.update({'_id': kvs['_id']},kvs)
      
 
 class Mblog(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_mblogs')
 
-    def add(self, kvs):
-        return self.update({'_id': kvs['_id']}, kvs)
-
-    def counts(self):
-        return self.count({})
+    # def counts(self):
+    #     return self.count({})
 
     def page(self,ids=None,page=0,direction=-1,num=20):
         if ids is None:
@@ -145,9 +136,7 @@ class Mblog(BaseDB):
 class Proxy(BaseDB):
     def __init__(self) -> None:
         self.db=db_proxy['db_proxy']
-    def add(self, kvs):
-        return self.update({'_id': kvs['_id']}, kvs)
-    
+
     def get_randomip(self):
         # print(self.random(2))
         ip=list(self.random(2))[0]
@@ -160,38 +149,21 @@ class States(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_states')
 
-    def add(self, kvs):
-        return self.update({'_id': kvs['name']}, kvs)
-    def counts(self):
-        return self.count({})
-
 class User(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_user')
 
-    def add(self, kvs):
-        return self.update({'_id': kvs['_id']}, kvs)
-
     def find_users(self,ids,page=0):
         return list(self.find({"_id": {"$in": ids}}).sort('uid', direction=-1).skip(int(page*20)).limit(20))
-    def counts(self):
-        return self.count({})
+
 class Liuyan(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_liuyan')
 
-    def add(self, kvs):
-        return self.update({'_id': kvs['_id']}, kvs)
-    def counts(self):
-        return self.count({})
 class Tongji(BaseDB):
     def __init__(self) -> None:
         super().__init__('db_tongji')
 
-    def add(self, kvs):
-        return self.update({'_id': kvs['_id']}, kvs)
-    def counts(self):
-        return self.count({})
 tongji=Tongji()
 liuyan=Liuyan()
 comment=Comment()

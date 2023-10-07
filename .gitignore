@@ -11,3 +11,4 @@ flaskr1
 flaskr/static/b*
 flaskr/templates/files/
 utils1.py
+tests/

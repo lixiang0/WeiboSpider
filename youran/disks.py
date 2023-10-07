@@ -25,7 +25,6 @@ class Min:
             return 0
     def save_weibo(self,name,content):
         return self.save('weibo1',name,content)
-    
     def get_img(self,bucket_name,name):
         # Get data of an object.
         response=None

@@ -57,10 +57,7 @@
 git clone https://github.com/lixiang0/WeiboSpider
 cd WeiboSpider/
 
-# 1.mongo
-docker run -p 27017:27017 --name docker_mongodb -d mongo
-
-# 2.minio
+# 1.minio
 docker run \
   -p 9000:9000 \
   -p 9001:9001 \
@@ -70,13 +67,12 @@ docker run \
   -v /mnt/data:/data \
   quay.io/minio/minio server /data --console-address ":9001"
 
-# 3.[可选]关于cookie 
+# 2.[可选]关于cookie 
 # https://github.com/moonD4rk/HackBrowserData
 # cookie保存在results目录下
 
-# 4.部署
+# 3.部署
 # 注意docker-compose.yml里面的mongodb和minio的地址
-sudo docker-compose up -d --build [all/web/my/follow/hot](可选)
-```
+sudo docker-compose up -d --build
 
 

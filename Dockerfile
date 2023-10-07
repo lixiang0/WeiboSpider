@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 WORKDIR /code
 
 
@@ -18,7 +18,7 @@ ENV LC_ALL en_US.UTF-8
 ENV LC_LANG en_US.UTF-8  
 
 
-RUN  apt install build-essential libssl-dev libffi-dev python-dev python3-pip gcc --yes
+RUN  apt install build-essential libssl-dev libffi-dev python-dev python3-pip gcc --yes --fix-missing
 COPY requirements.txt requirements.txt
 RUN pip3 install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple
 RUN pip3 install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple

@@ -1,6 +1,8 @@
 import json
-from . import headers
-from . import db
+# from . import headers
+# from . import db
+import youran
+from youran import headers
 import requests,tqdm,io,re
 from scrapy.selector import Selector
 import urllib
@@ -12,20 +14,18 @@ def allowed_gai_family():
 urllib3_cn.allowed_gai_family = allowed_gai_family
 class BaseNet():
     @staticmethod
-    def baseget(url,cookie=False,header='pc',proxy=True):
-        # print(url)
-        cookies=headers.cookies if cookie else None
-        # tunnel = random.randint(1,10000)
-        headers1 =headers.pc if header == 'pc' else headers.mobile
-        # headers1["Proxy-Tunnel"]=str(tunnel)
-        _proxies=db.proxy.get_randomip() if proxy else None
-        r=requests.get(url, headers=headers1,cookies=cookies,verify=False,proxies=_proxies,timeout=30)
+    def baseget(url,cookie=False,headers=youran.headers.mobile,proxy=True):
+        cookies=youran.headers.cookies if cookie else None
+        _proxies=youran.db.proxy.get_randomip() if proxy else None
+        youran.logger.warning(f'获取代理地址:{_proxies}')
+        r=requests.get(url, headers=headers,cookies=cookies,verify=False,proxies=_proxies,timeout=30)
         # r.encoding = r.apparent_encoding
         return r.text
 
     @staticmethod
-    def download(url,progress=False,headers=headers.mobile):
-        response=requests.get(url, headers=headers, stream=True,timeout=30,verify=False,proxies=db.proxy.get_randomip())
+    def download(url,progress=False,headers=youran.headers.mobile,proxy=True):
+        _proxies=youran.db.proxy.get_randomip() if proxy else None
+        response=requests.get(url, headers=headers, stream=True,timeout=30,verify=False,proxies=_proxies)
         if response.status_code!=200:
             return None
         if 'Content-length' not in response.headers:
@@ -46,11 +46,12 @@ class BaseNet():
 
 class Comment(BaseNet):
     
-    def get(self,mblog,maxid=None,cookie=True,proxy=False):
+    def get(self,mblog,maxid=None,cookie=False,proxy=False):
         mid=mblog['mid']
         comment_url=f'https://m.weibo.cn/comments/hotflow?id={mid}&mid={mid}'
         comment_url=comment_url+f'&max_id={maxid}' if maxid else comment_url
         try:
+            # print(f'cookies={cookie}  proxy={proxy} comment_url={comment_url}')
             res = self.baseget(comment_url,cookie=cookie,proxy=proxy)
             # print(res)
             if '微博-出错了' in res:
@@ -60,7 +61,7 @@ class Comment(BaseNet):
             comments['_id']=mid
             return comments
         except Exception as e:
-            print(repr(e))
+            youran.logger.warning(repr(e))
             return None #网络错误
 
 
@@ -79,10 +80,10 @@ class Comment(BaseNet):
         return urls_name
 
 class Follow(BaseNet):
-    def get(self,uid, page=1,proxy=False):
+    def get(self,uid, page=1,proxy=False,cookie=False):
         follows_url = f'https://m.weibo.cn/api/container/getIndex?containerid=231051_-_followers_-_{uid}_-_1042015:tagCategory_019'
         next_url = follows_url+f'&page={page}' if page > 1 else follows_url
-        res = self.baseget(next_url)
+        res = self.baseget(next_url,proxy=proxy,cookie=cookie)
         obj = json.loads(res)
         # print(follows_url,obj)
         if obj['ok'] == 1:
@@ -121,7 +122,7 @@ class Hot(BaseNet):
     def get_detail(self,url):
         # print(url)
         url='https://weibo.com/a/hot/'+url+'&display=0&retcode=6102' if '/a/hot/' not in url else 'https://weibo.com'+url
-        detail_response=self.baseget(url,header='pc1',cookie=True)
+        detail_response=self.baseget(url,cookie=True)
         # print(detail_response)
         lists=Selector(text=detail_response).xpath('//div[@node-type="feed_list"]').xpath('//div[@action-type="feed_list_item"]').getall()
         # print(url,lists)
@@ -155,29 +156,29 @@ class Hot(BaseNet):
 class Mblog(BaseNet):
     # different user return different item for every page
     # https://weibo.com/ajax/statuses/mymblog?uid=2014433131&page=1238
-    def extract_mblogs1(self,uid, page=1,cookie=False,proxy=False):
-        # page_url=f'https://weibo.com/ajax/statuses/mymblog?uid={uid}&page={page}&feature=0'
-        # 1663072851
-        next_url=f'https://m.weibo.cn/api/container/getIndex?containerid=230413{uid}_-_WEIBO_SECOND_PROFILE_WEIBO&page_type=03&page={page}'
-        # next_url = f'https://weibo.com/ajax/statuses/mymblog?uid={uid}&page={page}'
-        obj=None
-        try:
-            print('next_url:',next_url)
-            res = self.baseget(next_url,cookie=cookie,proxy=proxy)
-            # print(res)
-            if '100005' in res:
-                return -2,'请求过于频繁' #请求过于频繁
-            obj=json.loads(res)
-        except Exception as e:
-            return -3,repr(e) #网络错误
-        mblogs = []
-        if obj['ok'] == 1:
-            for card in obj['data']['cards']:
-                if card['card_type']==9:
-                    mblogs.append(card['mblog']) 
-        else:
-            return -1,obj #可能需要重新登录
-        return 0, mblogs
+    # def extract_mblogs1(self,uid, page=1,cookie=False,proxy=False):
+    #     # page_url=f'https://weibo.com/ajax/statuses/mymblog?uid={uid}&page={page}&feature=0'
+    #     # 1663072851
+    #     next_url=f'https://m.weibo.cn/api/container/getIndex?containerid=230413{uid}_-_WEIBO_SECOND_PROFILE_WEIBO&page_type=03&page={page}'
+    #     # next_url = f'https://weibo.com/ajax/statuses/mymblog?uid={uid}&page={page}'
+    #     obj=None
+    #     try:
+    #         print('next_url:',next_url)
+    #         res = self.baseget(next_url,cookie=cookie,proxy=proxy)
+    #         print(res)
+    #         if '100005' in res:
+    #             return -2,'请求过于频繁' #请求过于频繁
+    #         obj=json.loads(res)
+    #     except Exception as e:
+    #         return -3,repr(e) #网络错误
+    #     mblogs = []
+    #     if obj['ok'] == 1:
+    #         for card in obj['data']['cards']:
+    #             if card['card_type']==9:
+    #                 mblogs.append(card['mblog']) 
+    #     else:
+    #         return -1,obj #可能需要重新登录
+    #     return 0, mblogs
     def extract_mblogs(self,uid, page=1,cookie=False,proxy=False):
         # page_url=f'https://weibo.com/ajax/statuses/mymblog?uid={uid}&page={page}&feature=0'
         next_url = f'https://m.weibo.cn/api/container/getIndex?uid={uid}&lfid=2304136390144374_-_WEIBO_SECOND_PROFILE_WEIBO&containerid=107603{uid}&page={page}'
@@ -322,6 +323,10 @@ class Video(BaseNet):
                         # http://mvvideo2.meitudata.com/581e9c3a91f903898.mp4
                         elif 'http://mvvideo2.meitudata.com' in video_url:#/581e9c3a91f903898.mp4
                             video_name=re.findall('m/(.*).(mp4|m3u8)',video_url)[0]
+                            video_name=video_name[0]+'.'+video_name[1]
+                        elif 'https://oasis.video.weibocdn.com' in video_url:
+                            # https://oasis.video.weibocdn.com/o2/Dm280BYblx07YUQoYiQo01041200OvMq0E012.mp4?label=mp4_ld&template=632x360.25.0&ori=0&ps=1BThihd3VLAY5R&Expires=1696356699&ssig=2JD6ChOexO&KID=unistore,video
+                            video_name=re.findall('o2/(.*).(mp4|m3u8)',video_url)[0]
                             video_name=video_name[0]+'.'+video_name[1]
                         else:
                             video_name = re.compile(

@@ -18,18 +18,74 @@
     <p>本网站用于对微博爬虫的展示。Github地址：<a href="https://github.com/lixiang0/weibo">点击链接</a></p>
 <p>欢迎关注公众号：悠然AI</p>
 <p> 联系邮箱：lingyunzi09#gmail.com</p>
-<p>抓取博文总{{ dicts['count'] }}条,博主{{ dicts['authors'] }}个</p>
-<P>当前爬取状态：</P>
+<!-- <P>当前爬取状态：</P>
 {% for state in dicts['states'] %}
 <p>{{ state['name'] }}{{ state['update_time'] }}</p>
-{% endfor %}
+{% endfor %} -->
 <p>Made By <img src="https://github.githubassets.com/favicon.ico"> <a
-        href="https://blog.youran.ai">Rubenxiao</a></p>
-    </div></div>
-
-
+        href="https://youran.tech">Rubenxiao</a></p>
+<div id="container" style="width: 550px; height: 400px; margin: 0 auto"></div>
+</div>
+</div>
+<!-- <script src="http://code.highcharts.com/highcharts.js"></script> -->
+<script language="JavaScript">
+    $(document).ready(function() {
+       var title = {
+           text: '更新记录'   
+       };
+       var subtitle = {
+            text: 'Source: youran.tech'
+       };
+       var xAxis = {
+           categories: {{ dicts["dates"] }}
+       };
+       var yAxis = {
+          title: {
+             text: '数目'
+          },
+          plotLines: [{
+             value: 0,
+             width: 1,
+             color: '#808080'
+          }]
+       };   
+    
+       var tooltip = {
+          valueSuffix: ''
+       }
+    
+       var legend = {
+          layout: 'vertical',
+          align: 'right',
+          verticalAlign: 'middle',
+          borderWidth: 0
+       };
+    
+       var series =  [
+          {
+             name: '用户数',
+             data:  {{ dicts["user_count"] }}
+          }, 
+          {
+             name: '微博数',
+             data: {{ dicts["mblog_count"] }}
+          }, 
+       ];
+    
+       var json = {};
+    
+       json.title = title;
+       json.subtitle = subtitle;
+       json.xAxis = xAxis;
+       json.yAxis = yAxis;
+       json.tooltip = tooltip;
+       json.legend = legend;
+       json.series = series;
+    
+       $('#container').highcharts(json);
+    });
+    </script>
 {% endblock %}
-
 <!-- {% block card0 %} {{ super() }}{% endblock %}
 {% block card %} {{ super() }}{% endblock %}
 {% block footer %} {{ super() }}{% endblock %} -->

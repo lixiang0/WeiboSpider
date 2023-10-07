@@ -141,25 +141,32 @@ def get_random_follows(num):
     return render_template('blog/follows.html',dicts=para)
 @bp.route('/about')
 def about():
-    count=dbutils.db.mblog.counts()
-    authors=dbutils.db.user.counts()
+    count=dbutils.db.mblog.counts({})
+    authors=dbutils.db.user.counts({})
     states=dbutils.db.states.find({})
+    user_count=[item['count'] for item in dbutils.db.states.find({"name":"user_count"})]
+    mblog_count=[item['count'] for item in dbutils.db.states.find({"name":"mblog_count"})]
+    dates=[int(item['update_time']) for item in dbutils.db.states.find({"name":"mblog_count"})]
     para={
         'count':count,
         'authors':authors,
         'user':None,
         'items':dbutils.get_hot(),
         'users':dbutils.random_user(10),
-        'states':dbutils.db.states.find({})
+        'states':dbutils.db.states.find({}),
+        "dates":dates,
+        "user_count":user_count,
+        "mblog_count":mblog_count,
     }
+    print(para)
     return render_template('about.html',dicts=para)
     # return render_template('me.html')
 @bp.route('/hot/<url>')
 def hot(url):
     print(url)
     mblogs=[]
-    count=dbutils.db.mblog.count({})
-    authors=dbutils.db.user.count({})
+    count=dbutils.db.mblog.counts({})
+    authors=dbutils.db.user.counts({})
     url=f'https://weibo.com/a/hot/{url}'
     bids=dbutils.get_hot_bids(url)
     LOG.info(bids)
