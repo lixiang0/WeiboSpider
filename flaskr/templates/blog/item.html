@@ -2,7 +2,7 @@
 
 
 <!-- <div class="box"> -->
-    <article class="media">
+    <article class="media blog-item">
       <div class="media-left">
         <figure class="image is-64x64">
           <img src="/static/avatar/{{ blog['user']['id'] }}.jpg" alt="User Avatar - {{ blog['user']['screen_name'] }}" class="is-rounded">
@@ -39,99 +39,82 @@
             {% endif %}
           </p>
           {% if blog['retweeted_status'] %}
-          <!-- <div class="box"> -->
-            <article class="media">
-              <!-- <div class="media-left">
-                <figure class="image is-48x48">
-                  <img src="{{ blog['retweeted_status']['user']['profile_image_url'] }}" alt="Image">
-                </figure>
-              </div> -->
-              <div class="media-content">
-                <div class="content">
-                  <p>
-                    <strong><a href='/u/{{ blog['retweeted_status']['user']['id'] }}'>@{{ blog['retweeted_status']['user']['screen_name'] }}</a></strong> <small><a href='/b/{{ blog['retweeted_status']['bid'] }}'>查看原文</a></small>
-                    <br>
-                    发表于{{ blog['retweeted_status']['created_at'] }}<br>来自{{ blog['retweeted_status']['source'] }}<br>
-                    {{ blog['retweeted_status']['text']|safe }}
-                    {% if blog['retweeted_status']['pics'] %}<br>
-                    <!-- <div class="container"> -->
-                    <!-- <div class="columns  is-gapless"> -->
-                      
-                      <!-- <figure class="image is-128x128"> -->
-                        <div class="retweet-images columns is-multiline is-mobile">
-                          {% for pic in blog['retweeted_status']['pics'][:3] %}
-                          <!-- <div class="column is-one-fifth"> -->
-                          <!-- <image class="lazy" lazyload="true" data-original='/static/imgs/{{ pic['large']['url'].split('/')[-1] }}'></image> -->
-                          <div class="column is-half-mobile is-one-third-tablet">
-                            <figure class="image">
-                              <img 
-                                src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}" 
-                                alt="Retweeted Image - {{ loop.index }}" 
-                                class="retweet-image" 
-                                loading="lazy"
-                                onclick="showFullImage(this.src)">
-                            </figure>
-                          </div>
-                          <!-- <figure class="image is-128x128">
-                            <img src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}">
-                          </figure> -->
-                          <!-- </div> -->
-                              <!-- <img class="has-ratio" width="640" height="360" src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}"> -->
-                          {% endfor %}
-                        </div>
-                      <!-- </figure> -->
-                      </div>
-                    <!-- </div> -->
-                    {% endif %}
-                    {% if blog['retweeted_status']['video_name'] %}<br>
-                    <!-- <video autoplay='false' width=300px controls> -->
-                    <video width="100%" max-width="480px" controls preload="metadata">
-                        <source src='/static/videos/{{ blog['retweeted_status']['video_name'] }}' type='video/mp4'>
-                    </video>
-
-                    <figure class="image is-16by9">
-                      <iframe class="has-ratio" width="640" height="360" src="/static/videos/{{ blog['retweeted_status']['video_name'] }}" frameborder="0" allowfullscreen></iframe>
-                    </figure>
-                    <!-- </video> -->
-                    {% endif %}
-                  </p>
-                <!-- </div> -->
-            
-        </article>
+          <article class="media retweeted-content">
+            <div class="media-content">
+              <div class="content">
+                <p>
+                  <strong><a href='/u/{{ blog['retweeted_status']['user']['id'] }}'>@{{ blog['retweeted_status']['user']['screen_name'] }}</a></strong> <small><a href='/b/{{ blog['retweeted_status']['bid'] }}'>查看原文</a></small>
+                  <br>
+                  发表于{{ blog['retweeted_status']['created_at'] }}<br>来自{{ blog['retweeted_status']['source'] }}<br>
+                  {{ blog['retweeted_status']['text']|safe }}
+                  {% if blog['retweeted_status']['pics'] %}<br>
+                  <div class="retweet-images columns is-multiline is-mobile">
+                    {% for pic in blog['retweeted_status']['pics'][:3] %}
+                    <div class="column is-half-mobile is-one-third-tablet">
+                      <figure class="image">
+                        <img 
+                          src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}" 
+                          alt="Retweeted Image - {{ loop.index }}" 
+                          class="retweet-image" 
+                          loading="lazy"
+                          onclick="showFullImage(this.src)">
+                      </figure>
+                    </div>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                  {% if blog['retweeted_status']['video_name'] %}<br>
+                  <video width="100%" max-width="480px" controls preload="metadata">
+                    <source src='/static/videos/{{ blog['retweeted_status']['video_name'] }}' type='video/mp4'>
+                    您的浏览器不支持视频播放
+                  </video>
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+          </article>
           {% endif %}
         </div>
 
         <nav class="level">
           <div class="level-left">
             <a class="level-item" aria-label="reply">
-              <!-- <span class="icon "> -->
-                评论：{{ blog['comments_count'] }}
-                <i class="fas fa-reply" aria-hidden="true"></i>
-              <!-- </span> -->
+              评论：{{ blog['comments_count'] }}
+              <i class="fas fa-reply" aria-hidden="true"></i>
             </a>
             <a class="level-item" aria-label="retweet">
-              <!-- <span class="icon"> -->
-                转发：{{ blog['reposts_count'] }}
-                <i class="fas fa-retweet" aria-hidden="true"></i>
-              <!-- </span> -->
+              转发：{{ blog['reposts_count'] }}
+              <i class="fas fa-retweet" aria-hidden="true"></i>
             </a>
-            <a class="level-item right" aria-label="like">
-              <!-- <span class="icon is-small"> -->
-                {% if dicts['fav'] %}<a href="/ufav/{{ blog['bid'] }}">取消点赞</a>{% else %}<a
-                href="/fav/{{ blog['bid'] }}">点赞</a>{% endif %}： {{ blog['attitudes_count'] }}
-                <i class="fas fa-heart" ></i>
-              <!-- </span> -->
+            <a class="level-item" aria-label="like">
+              {% if dicts['fav'] %}<a href="/ufav/{{ blog['bid'] }}">取消点赞</a>{% else %}<a href="/fav/{{ blog['bid'] }}">点赞</a>{% endif %}： {{ blog['attitudes_count'] }}
+              <i class="fas fa-heart"></i>
             </a>
           </div>
         </nav>
-      {% if dicts['comments'] %}
-        {% include 'blog/comments.html' %}
-      {% endif %}
+        {% if dicts['comments'] %}
+          {% include 'blog/comments.html' %}
+        {% endif %}
       </div>
     </article>
   <!-- </div> -->
 
 <style>
+/* 博客项目样式 */
+.blog-item {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 转发内容样式 */
+.retweeted-content {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
 /* 图片显示样式 */
 .blog-images, .retweet-images {
   margin-top: 0.75rem;

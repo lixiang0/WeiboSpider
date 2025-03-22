@@ -1,28 +1,119 @@
 {% if dicts['blogs'] %}
-<div class="pagination main">
-    {% if dicts['curr']>1 %}
+<nav class="pagination is-centered" role="navigation" aria-label="分页导航">
+  <ul class="pagination-list">
+    {% if dicts['curr'] > 1 %}
+      {% if dicts['user'] %}
+        <li>
+          <a href='/u/{{ dicts['user']['id'] }}?page={{ dicts['curr']-1 }}' class="pagination-previous" aria-label="前往上一页">
+            <span class="icon">
+              <i class="fas fa-chevron-left" aria-hidden="true"></i>
+            </span>
+            <span>上一页</span>
+          </a>
+        </li>
+      {% else %}
+        <li>
+          <a href='/u?page={{ dicts['curr']-1 }}' class="pagination-previous" aria-label="前往上一页">
+            <span class="icon">
+              <i class="fas fa-chevron-left" aria-hidden="true"></i>
+            </span>
+            <span>上一页</span>
+          </a>
+        </li>
+      {% endif %}
+    {% else %}
+      <li>
+        <span class="pagination-previous is-disabled" disabled>
+          <span class="icon">
+            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+          </span>
+          <span>上一页</span>
+        </span>
+      </li>
+    {% endif %}
 
-    {% if dicts['user'] %}
-    <a href='/u/{{ dicts['user']['id'] }}?page={{ dicts['curr']-1 }}'>上一页</a>
-    {% else %}
-    <a href='/u?page={{ dicts['curr']-1 }}'>上一页</a>
-    {% endif %}
-    {% else %}
-    <a >没有了</a>
-    {% endif %}
-    <!-- <a href="#">&laquo;</a> -->
-    <!-- <a href="#">1</a>
-    <a href="#" class="active">2</a>
-    <a href="#">3</a>
-    <a href="#">4</a>
-    <a href="#">5</a>
-    <a href="#">6</a> -->
-    <!-- <a href="#">&raquo;</a> -->
+    <!-- 当前页码指示器 -->
+    <li>
+      <span class="pagination-link is-current" aria-current="page">{{ dicts['curr'] }}</span>
+    </li>
 
     {% if dicts['user'] %}  
-    <a href='/u/{{ dicts['user']['id'] }}?page={{ dicts['curr']+1 }}'>下一页</a>
+      <li>
+        <a href='/u/{{ dicts['user']['id'] }}?page={{ dicts['curr']+1 }}' class="pagination-next" aria-label="前往下一页">
+          <span>下一页</span>
+          <span class="icon">
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+          </span>
+        </a>
+      </li>
     {% else %}
-    <a href='/u?page={{ dicts['curr']+1 }}'>下一页</a>
+      <li>
+        <a href='/u?page={{ dicts['curr']+1 }}' class="pagination-next" aria-label="前往下一页">
+          <span>下一页</span>
+          <span class="icon">
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+          </span>
+        </a>
+      </li>
     {% endif %}
-  </div>
-  {% endif %}
+  </ul>
+</nav>
+
+<style>
+  .pagination {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .pagination-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .pagination-list li {
+    margin: 0 0.25rem;
+  }
+  
+  .pagination-link, 
+  .pagination-previous, 
+  .pagination-next {
+    border: 1px solid #dbdbdb;
+    border-radius: 4px;
+    color: #363636;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5em;
+    padding: 0.5em 0.75em;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  .pagination-link:hover, 
+  .pagination-previous:hover, 
+  .pagination-next:hover {
+    background-color: #f5f5f5;
+    border-color: #b5b5b5;
+  }
+  
+  .pagination-link.is-current {
+    background-color: #3273dc;
+    border-color: #3273dc;
+    color: #fff;
+    font-weight: 700;
+  }
+  
+  .is-disabled {
+    background-color: #f5f5f5;
+    border-color: #dbdbdb;
+    color: #7a7a7a;
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+</style>
+{% endif %}
