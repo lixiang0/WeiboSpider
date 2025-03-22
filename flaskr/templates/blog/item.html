@@ -5,7 +5,7 @@
     <article class="media">
       <div class="media-left">
         <figure class="image is-64x64">
-          <img src="/static/avatar/{{ blog['user']['id'] }}.jpg" alt="Image">
+          <img src="/static/avatar/{{ blog['user']['id'] }}.jpg" alt="User Avatar - {{ blog['user']['screen_name'] }}" class="is-rounded">
         </figure>
       </div>
       <div class="media-content">
@@ -16,19 +16,26 @@
             发表于{{ blog['created_at'] }}<br>来自{{ blog['source'] }}<br>
             {{ blog['text']|safe }}
             {% if blog['pics'] %}<br>
-            <table class="table">
-                {% for pic in blog['pics'] %}
-                <!-- <image class="lazy" lazyload="true" data-original='/static/imgs/{{ pic['large']['url'].split('/')[-1] }}'></image> -->
-                <img width=300px src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}" alt="">
-                {% endfor %}
-            </table>
+            <div class="blog-images columns is-multiline is-mobile">
+              {% for pic in blog['pics'] %}
+              <div class="column is-half-mobile is-one-third-tablet is-one-quarter-desktop">
+                <figure class="image">
+                  <img 
+                    src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}" 
+                    alt="Blog Image - {{ loop.index }}" 
+                    class="blog-image" 
+                    loading="lazy"
+                    onclick="showFullImage(this.src)">
+                </figure>
+              </div>
+              {% endfor %}
+            </div>
             {% endif %}
             {% if blog['video_name'] %}<br>
-            <!-- <video autoplay='false' width=300px controls> -->
-            <video width=300px controls>
-                <source src='/static/videos/{{ blog['video_name'] }}' type='video/mp4'>
+            <video width="100%" max-width="640px" controls preload="metadata">
+              <source src='/static/videos/{{ blog['video_name'] }}' type='video/mp4'>
+              您的浏览器不支持视频播放
             </video>
-            <!-- </video> -->
             {% endif %}
           </p>
           {% if blog['retweeted_status'] %}
@@ -51,23 +58,34 @@
                     <!-- <div class="columns  is-gapless"> -->
                       
                       <!-- <figure class="image is-128x128"> -->
-                        {% for pic in blog['retweeted_status']['pics'][:3] %}
-                        <!-- <div class="column is-one-fifth"> -->
-                        <!-- <image class="lazy" lazyload="true" data-original='/static/imgs/{{ pic['large']['url'].split('/')[-1] }}'></image> -->
-                        <img width=200px src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}" alt="">
-                        <!-- <figure class="image is-128x128">
-                          <img src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}">
-                        </figure> -->
-                      <!-- </div> -->
-                          <!-- <img class="has-ratio" width="640" height="360" src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}"> -->
-                        {% endfor %}
+                        <div class="retweet-images columns is-multiline is-mobile">
+                          {% for pic in blog['retweeted_status']['pics'][:3] %}
+                          <!-- <div class="column is-one-fifth"> -->
+                          <!-- <image class="lazy" lazyload="true" data-original='/static/imgs/{{ pic['large']['url'].split('/')[-1] }}'></image> -->
+                          <div class="column is-half-mobile is-one-third-tablet">
+                            <figure class="image">
+                              <img 
+                                src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}" 
+                                alt="Retweeted Image - {{ loop.index }}" 
+                                class="retweet-image" 
+                                loading="lazy"
+                                onclick="showFullImage(this.src)">
+                            </figure>
+                          </div>
+                          <!-- <figure class="image is-128x128">
+                            <img src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}">
+                          </figure> -->
+                          <!-- </div> -->
+                              <!-- <img class="has-ratio" width="640" height="360" src="/static/imgs/{{ pic['large']['url'].split('/')[-1] }}"> -->
+                          {% endfor %}
+                        </div>
                       <!-- </figure> -->
                       </div>
                     <!-- </div> -->
                     {% endif %}
                     {% if blog['retweeted_status']['video_name'] %}<br>
                     <!-- <video autoplay='false' width=300px controls> -->
-                    <video width=300px controls>
+                    <video width="100%" max-width="480px" controls preload="metadata">
                         <source src='/static/videos/{{ blog['retweeted_status']['video_name'] }}' type='video/mp4'>
                     </video>
 
@@ -88,7 +106,6 @@
             <a class="level-item" aria-label="reply">
               <!-- <span class="icon "> -->
                 评论：{{ blog['comments_count'] }}
-                <i class="fab fa-angellist"></i>
                 <i class="fas fa-reply" aria-hidden="true"></i>
               <!-- </span> -->
             </a>
@@ -113,6 +130,119 @@
       </div>
     </article>
   <!-- </div> -->
+
+<style>
+/* 图片显示样式 */
+.blog-images, .retweet-images {
+  margin-top: 0.75rem;
+}
+
+.blog-image, .retweet-image {
+  object-fit: cover;
+  max-height: 250px;
+  width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.blog-image:hover, .retweet-image:hover {
+  transform: scale(1.02);
+}
+
+/* 图片查看器背景 */
+.image-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.image-viewer.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.image-viewer img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+}
+
+.image-viewer .close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+}
+</style>
+
+<script>
+// 创建图片查看器元素
+function createImageViewer() {
+  if (!document.querySelector('.image-viewer')) {
+    const viewer = document.createElement('div');
+    viewer.className = 'image-viewer';
+    
+    const closeBtn = document.createElement('span');
+    closeBtn.className = 'close-button';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.onclick = closeViewer;
+    
+    const img = document.createElement('img');
+    
+    viewer.appendChild(img);
+    viewer.appendChild(closeBtn);
+    viewer.onclick = closeViewer;
+    
+    document.body.appendChild(viewer);
+  }
+}
+
+// 打开图片查看器
+function showFullImage(src) {
+  createImageViewer();
+  
+  const viewer = document.querySelector('.image-viewer');
+  const img = viewer.querySelector('img');
+  
+  img.src = src;
+  viewer.classList.add('active');
+  
+  // 防止滚动
+  document.body.style.overflow = 'hidden';
+}
+
+// 关闭图片查看器
+function closeViewer() {
+  const viewer = document.querySelector('.image-viewer');
+  viewer.classList.remove('active');
+  
+  // 恢复滚动
+  document.body.style.overflow = '';
+}
+
+// 按ESC键关闭查看器
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeViewer();
+  }
+});
+
+// 初始化
+document.addEventListener('DOMContentLoaded', createImageViewer);
+</script>
 
 
 
