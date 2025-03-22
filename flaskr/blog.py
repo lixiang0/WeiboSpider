@@ -178,7 +178,7 @@ def get_follows(uid=None):
     except Exception as e:
         logger.error(f'获取关注列表时出错: {str(e)}')
         flash('获取关注列表时出错，请刷新页面重试')
-        return render_template('blog/follows.html', dicts={'error': '获取数据出错'})
+        return render_template('blog/follows.html', dicts={'items': dbutils.get_hot(),})
 
 
 @bp.route('/r/blog/<num>')
@@ -265,27 +265,28 @@ def about():
     logger.info('='*40 + ' 访问关于页面 ' + '='*40)
     
     try:
-        # 获取统计数据
-        count = dbutils.db.mblog.counts({})
-        authors = dbutils.db.user.counts({})
-        states = dbutils.db.states.find({})
         
         # 获取用户数量和微博数量历史数据
         user_count = [item['count'] for item in dbutils.db.states.find({"name": "user_count"})]
         mblog_count = [item['count'] for item in dbutils.db.states.find({"name": "mblog_count"})]
         dates = [int(item['update_time']) for item in dbutils.db.states.find({"name": "mblog_count"})]
-        
+        imgs=list(dbutils.db.states.find({"name": "imgs_count"}))
+        videos=list(dbutils.db.states.find({"name": "videos_count"}))
+        comments=list(dbutils.db.states.find({"name": "comment_count"}))
+        comment_count =['']*(len(dates)-len(comments)) +[item['count'] for item in comments]
+        imgs_count =['']*(len(dates)-len(imgs)) +[item['count'] for item in imgs]
+        videos_count =['']*(len(dates)-len(videos)) +[item['count'] for item in videos]
         # 准备模板数据
         para = {
-            'count': count,
-            'authors': authors,
             'user': None,
             'items': dbutils.get_hot(),
             'users': dbutils.random_user(10),
-            'states': dbutils.db.states.find({}),
             "dates": dates,
             "user_count": user_count,
             "mblog_count": mblog_count,
+            "comment_count": comment_count,
+            "imgs_count": imgs_count,
+            "videos_count": videos_count,
         }
         
         return render_template('about.html', dicts=para)

@@ -1,20 +1,12 @@
 
-import requests
-from scrapy.selector import Selector
-import time
-import youran
-from youran import headers,db
+import os
+os.environ["DBIP"]="192.168.8.111"
+os.environ["MINIOIP"]="192.168.8.111"
+os.environ["DBPort"]="27017"
+os.environ["MINIOPort"]="9000"
 
-from youran.proxy import kuaidaili
-# export DBIP=192.168.2.103 \
-# export MINIOIP=192.168.2.107 \
-# export DBPort=27017 \
-# export MINIOPort=9010
 import youran
-from youran import db,net,utils
-from youran.db import *
-from youran.net import *
-import os,logging,time,math
+from youran.proxy import kuaidaili
 while True:
     kuaidaili()
     youran.utils.sleep(23*60*60,24*60*60)

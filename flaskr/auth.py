@@ -166,8 +166,8 @@ def register():
                 error = "用户名不能为空"
             elif not psw:
                 error = "密码不能为空"
-            elif len(psw) < 6:
-                error = "密码长度不能少于6个字符"
+            elif len(psw) < 3:
+                error = "密码长度不能少于3个字符"
                 
             if error:
                 flash(error)

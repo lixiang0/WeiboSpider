@@ -1,10 +1,12 @@
-# coding=utf-8
 import os
-os.environ['DBIP']='192.168.2.103'
-os.environ['MINIOIP']='192.168.2.107'
-os.environ['DBPort']='27017'
-os.environ['MINIOPort']='9010'
-
+# export   DBIP=192.168.8.101
+# export   MINIOIP=192.168.8.101
+# export   DBPort=27017 
+# export  MINIOPort=9000
+os.environ["DBIP"]="192.168.8.111"
+os.environ["MINIOIP"]="192.168.8.111"
+os.environ["DBPort"]="27017"
+os.environ["MINIOPort"]="9000"
 import youran
 
 from youran import db,net,utils
@@ -15,7 +17,7 @@ import random
 import datetime
 import time
 import sys
-import os
+
  
 from youran.disks import Min
 import json
@@ -27,7 +29,7 @@ while True:
     ids=[]
     users =[user for user in  youran.db.account.random()]
     for user in users:
-        print(user)
+        youran.logger.warning(user['_id'])
         ids+=db.follow.find_follows(id=user['_id'])#set(config.IDS)6390144374
     youran.logger.warning(ids)
     # ids=youran.db.follow.find_follows(id=6390144374)
@@ -38,7 +40,7 @@ while True:
         username=list(db.user.find({'_id':uid}))[0]['screen_name']
         youran.logger.warning(f'当前爬取的用户为：{username}')
         youran.logger.warning('*'*100)
-        code,msg=utils.getall(uid=uid,duplicate=False,cookie=True,proxy=False,one_page=True)
+        code,msg=utils.getall(uid=uid,duplicate=False,cookie=False,proxy=False,one_page=True)
         youran.logger.warning(f'code={code},msg={msg}')
         youran.utils.sleep(20,1*60) 
         youran.logger.warning(f'本id:{username}抓取结束..')

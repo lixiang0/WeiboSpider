@@ -7,63 +7,155 @@ import requests,tqdm,io,re
 from scrapy.selector import Selector
 import urllib
 import socket
+import time
 import requests.packages.urllib3.util.connection as urllib3_cn
+from requests.exceptions import RequestException, Timeout, ConnectionError
+
+import youran.headers
+
 def allowed_gai_family():
     family = socket.AF_INET # force IPv4
     return family
 urllib3_cn.allowed_gai_family = allowed_gai_family
+
 class BaseNet():
     @staticmethod
-    def baseget(url,cookie=False,headers=youran.headers.mobile,proxy=True):
-        cookies=youran.headers.cookies if cookie else None
-        _proxies=youran.db.proxy.get_randomip() if proxy else None
+    def baseget(url, cookie=False, headers=youran.headers.mobile, proxy=True, max_retries=1, retry_delay=2):
+        """
+        发送GET请求并支持重试机制
+        
+        Args:
+            url: 请求URL
+            cookie: 是否使用cookie
+            headers: 请求头
+            proxy: 是否使用代理
+            max_retries: 最大重试次数
+            retry_delay: 重试延迟(秒)
+            
+        Returns:
+            响应文本或None(如果所有重试都失败)
+        """
+        cookies = youran.headers.cookies if cookie else None
+        _proxies = youran.db.proxy.get_randomip() if proxy else None
         youran.logger.warning(f'获取代理地址:{_proxies}')
-        r=requests.get(url, headers=headers,cookies=cookies,verify=False,proxies=_proxies,timeout=30)
-        # r.encoding = r.apparent_encoding
-        return r.text
+        
+        for attempt in range(max_retries):
+            try:
+                r = requests.get(
+                    url, 
+                    headers=headers,
+                    cookies=cookies,
+                    verify=False,
+                    proxies=_proxies,
+                    timeout=30
+                )
+                r.raise_for_status()  # 抛出HTTP错误状态码的异常
+                return r.text
+            except Timeout as e:
+                youran.logger.warning(f"请求超时 (尝试 {attempt+1}/{max_retries}): {str(e)}")
+            except ConnectionError as e:
+                youran.logger.warning(f"连接错误 (尝试 {attempt+1}/{max_retries}): {str(e)}")
+                # 如果是代理问题，尝试获取新代理
+                if proxy:
+                    _proxies = youran.db.proxy.get_randomip()
+                    youran.logger.warning(f'重新获取代理地址:{_proxies}')
+            except RequestException as e:
+                youran.logger.warning(f"请求异常 (尝试 {attempt+1}/{max_retries}): {str(e)}")
+            
+            # 最后一次尝试失败
+            if attempt == max_retries - 1:
+                youran.logger.error(f"所有重试都失败: {url}")
+                return None
+                
+            # 延迟重试，使用指数退避策略
+            delay = retry_delay * (2 ** attempt)
+            youran.logger.warning(f"等待 {delay} 秒后重试...")
+            time.sleep(delay)
 
     @staticmethod
-    def download(url,progress=False,headers=youran.headers.mobile,proxy=True):
-        _proxies=youran.db.proxy.get_randomip() if proxy else None
-        response=requests.get(url, headers=headers, stream=True,timeout=30,verify=False,proxies=_proxies)
-        if response.status_code!=200:
-            return None
-        if 'Content-length' not in response.headers:
-            return None
-        file_size=response.headers['Content-length']
-        pbar=None
-        if progress:
-            pbar=tqdm.tqdm(total=int(file_size),unit='B',unit_scale=True,desc=url.split('/')[-1][:20])
-        with io.BytesIO() as f:
-            for chunk in response.iter_content(chunk_size=1024):
-                if  chunk:
-                    f.write(chunk)
-                    if progress:
-                        pbar.update(1024)
-            if progress:
-                pbar.close()
-            return f.getvalue()
+    def download(url, progress=False, headers=youran.headers.mobile, proxy=False, max_retries=3, retry_delay=2):
+        """改进的下载方法，支持重试机制"""
+        for attempt in range(max_retries):
+            try:
+                _proxies = youran.db.proxy.get_randomip() if proxy else None
+                response = requests.get(
+                    url, 
+                    headers=headers, 
+                    stream=True,
+                    timeout=30,
+                    verify=False,
+                    proxies=_proxies
+                )
+                response.raise_for_status()
+                
+                if response.status_code != 200:
+                    youran.logger.warning(f"非200状态码: {response.status_code}")
+                    continue
+                    
+                if 'Content-length' not in response.headers:
+                    youran.logger.warning("响应中没有Content-length头")
+                    continue
+                    
+                file_size = response.headers['Content-length']
+                pbar = None
+                if progress:
+                    pbar = tqdm.tqdm(total=int(file_size), unit='B', unit_scale=True, desc=url.split('/')[-1][:20])
+                    
+                with io.BytesIO() as f:
+                    for chunk in response.iter_content(chunk_size=1024):
+                        if chunk:
+                            f.write(chunk)
+                            if progress and pbar:
+                                pbar.update(1024)
+                    if progress and pbar:
+                        pbar.close()
+                    return f.getvalue()
+                    
+            except (RequestException, IOError) as e:
+                youran.logger.warning(f"下载失败 (尝试 {attempt+1}/{max_retries}): {str(e)}")
+                
+                # 如果是代理问题，尝试获取新代理
+                if proxy and isinstance(e, ConnectionError):
+                    _proxies = youran.db.proxy.get_randomip()
+                
+                # 最后一次尝试失败
+                if attempt == max_retries - 1:
+                    youran.logger.error(f"所有下载重试都失败: {url}")
+                    return None
+                    
+                # 延迟重试
+                delay = retry_delay * (2 ** attempt)
+                youran.logger.warning(f"等待 {delay} 秒后重试下载...")
+                time.sleep(delay)
+        
+        return None
 
 class Comment(BaseNet):
     
-    def get(self,mblog,maxid=None,cookie=False,proxy=False):
-        mid=mblog['mid']
-        comment_url=f'https://m.weibo.cn/comments/hotflow?id={mid}&mid={mid}'
-        comment_url=comment_url+f'&max_id={maxid}' if maxid else comment_url
+    def get(self, mblog, maxid=None, cookie=False, proxy=False):
+        mid = mblog['mid']
+        comment_url = f'https://m.weibo.cn/comments/hotflow?id={mid}&mid={mid}'
+        comment_url = comment_url+f'&max_id={maxid}' if maxid else comment_url
         try:
-            # print(f'cookies={cookie}  proxy={proxy} comment_url={comment_url}')
-            res = self.baseget(comment_url,cookie=cookie,proxy=proxy)
-            # print(res)
-            if '微博-出错了' in res:
+            res = self.baseget(comment_url, cookie=cookie, proxy=proxy)
+            if res is None:
+                youran.logger.warning(f"获取评论失败: {mid}")
                 return None
-            comments=json.loads(res)
-            comments['mid']=mid
-            comments['_id']=mid
+                
+            if '微博-出错了' in res:
+                youran.logger.warning(f"微博返回错误页面: {mid}")
+                return None
+                
+            comments = json.loads(res)
+            comments['mid'] = mid
+            comments['_id'] = mid
             return comments
+        except json.JSONDecodeError as e:
+            youran.logger.warning(f"JSON解析错误: {str(e)}")
+            return None
         except Exception as e:
-            youran.logger.warning(repr(e))
-            return None #网络错误
-
+            youran.logger.warning(f"获取评论异常: {repr(e)}")
+            return None  # 网络错误
 
     def extract_img(self,comments):
         urls_name=[]
@@ -256,10 +348,9 @@ class Mblog(BaseNet):
         return res
 class User(BaseNet):
     def get(self,id):
-        url=f'https://m.weibo.cn/api/container/getIndex?uid={id}&t=0&luicode=10000011&lfid=100103type%3D3%26q%3D3164402322%26t%3D0&containerid=1005053164402322'
+        url=f'https://m.weibo.cn/api/container/getIndex?uid={id}&t=0&luicode=10000011&lfid=100103type%3D3%26q%3D{id}%26t%3D0&containerid=100505{id}'
         # url=f'https://m.weibo.cn/profile/info?uid={id}'
-        # print(url)
-        res = self.baseget(url,header='')
+        res = self.baseget(url)
         if '用户不存在' in res:
             return None
         # print(res)
@@ -272,71 +363,157 @@ class User(BaseNet):
             return None
 
 class Video(BaseNet):
-    def extract(self,mblog):
-        # 解析视频地址video:mblog['mblog']['page_info']['media_info']['stream_url']
-        # 字段的示例参考10.×.py文件
+    def __init__(self):
+        super().__init__()
+        # 预编译正则表达式以提高性能
+        self.regex_patterns = {
+            'miaopai_expires': re.compile(r'.*?Expires'),
+            'miaopai_mp4': re.compile(r'.*.mp4\?'),
+            'sina_video': re.compile(r'n/(.*).(mp4|m3u8)\?'),
+            'edge_video': re.compile(r'/(.*).mp4'),
+            'meitu_video': re.compile(r'm/(.*).(mp4|m3u8)'),
+            'oasis_video': re.compile(r'o2/(.*).(mp4|m3u8)'),
+            'f_video': re.compile(r'(u0|o0)/(.*).(mp4|m3u8)\?label'),
+            'tencent_video': re.compile(r'v\.qq\.com/.*?/(.*?)(\.mp4|\.m3u8)'),
+            'default_mp4': re.compile(r'.*.mp4\?')
+        }
+        
+    def _safe_regex_find(self, pattern_name, text):
+        """安全地应用正则表达式，避免异常"""
+        try:
+            pattern = self.regex_patterns.get(pattern_name)
+            if not pattern:
+                youran.logger.error(f"未找到正则表达式模式: {pattern_name}")
+                return None
+                
+            result = pattern.findall(text)
+            return result if result else None
+        except Exception as e:
+            youran.logger.error(f"正则表达式匹配失败 {pattern_name}: {repr(e)}")
+            return None
+    
+    def extract(self, mblog):
+        """提取微博中的视频URL和文件名"""
         if not mblog:
-            return None,None
-        object_id = ''
-        if 'page_info' in mblog.keys():
-            if mblog['page_info']['type'] == 'video':
-                object_id = mblog['page_info']['object_id']
-                # for video
-                if len(object_id) > 2:
-                    # f'https://m.weibo.cn/status/{bid}?fid={object_id}'
-                    if 'media_info' not in mblog['page_info'].keys():
-                        return
-                    video_url = mblog['page_info']['media_info']['stream_url']
-                    video_name = ''
-                    if video_url is not ' ' and video_url is not '':
-                        # http://flv.bn.netease.com/videolib3/1602/25/DCmck9663/HD/DCmck9663-mobile.mp4
-                        if 'cntv.vod.cdn.myqcloud.com' in video_url or 'flv.bn.netease.com' in video_url:
-                            video_name = video_url.split('/')[-1]
-                        # http://miaopai.video.weibocdn.com/y8uhGmpklx07hgllSbT20104020118Td0E013?Expires=1580820449&ssig=Tyclwn1zHP&KID=unistore,video
-                        # http://miaopai.video.weibocdn.com/004isPQTlx07w78L1b5S010412010UgY0E013.mp4?label=mp4_hd&template=852x480.24.0&trans_finger=ac6fb6d5c49a67fe2901ae638b222ab2&Expires=1580806190&ssig=YrHlNViWdZ&KID=unistore,video
-                        elif 'miaopai.video.weibocdn.com' in video_url:
-                            if '?Expires=' in video_url:
-                                video_name = re.compile(
-                                    '.*?Expires').findall(video_url)[0].split('/')[-1][:-8]+'.mp4'
-                            if '.mp4?label=mp4_hd' in video_url:
-                                video_name = re.compile(
-                                    '.*.mp4\?').findall(video_url)[0][:-1].split('/')[-1]
-                        # http://api.ivideo.sina.com.cn/public/video/play/url?appname=weibocard&appver=0.1&applt=web&tags=weibocard&direct=1&vid=32183307201
-                        elif 'api.ivideo.sina.com.cn' in video_url:  # 需要redirect
-                            video_url = urllib.request.urlopen(
-                                video_url).geturl()  # redirect之后再解析
-                            mblog['page_info']['media_info']['stream_url'] = video_url
-                            res = re.findall('n/(.*).(mp4|m3u8)\?', video_url)[0]
-                            video_name = res[0]+'.'+res[1]
-                        # https://us.sinaimg.cn/0048hC0kjx06YLljHDni010d0100006H0k01.m3u8?KID=unistore,video&Expires=1582024223&ssig=Kbnro7UusO&KID=unistore,video
-                        # https://us.sinaimg.cn/0023jkOujx07bacCMKDK010f1100fYwu0k01.mp4?label=mp4_hd&Expires=1582079291&ssig=4wjkt3+R4g&KID=unistore,video,开始下载
-                        elif 'https://us.sinaimg.cn' in video_url:
-                            video_name = re.findall('n/(.*).(mp4|m3u8)\?',video_url)
-                            video_name=video_name[0][0]+'.'+video_name[0][1]
-                        # https://api.youku.com/videos/player/file?data=WcEl1oUuTdTROalV5T0RFd09BPT18MHwxfDEwMDUw
-                        elif 'https://api.youku.com' in video_url:
-                            video_name = video_url.split('data=')[1]+'.mp4'
-                        # http://edge.ivideo.sina.com.cn/96148152.mp4?KID=sina,viask&Expires=1582214400&ssig=TafyOUtj%2Ff
-                        elif 'edge.ivideo.sina.com.cn' in video_url:
-                            video_name = re.findall(
-                                '/(.*).mp4', video_url)[0]+'.mp4'
-                        # http://mvvideo2.meitudata.com/581e9c3a91f903898.mp4
-                        elif 'http://mvvideo2.meitudata.com' in video_url:#/581e9c3a91f903898.mp4
-                            video_name=re.findall('m/(.*).(mp4|m3u8)',video_url)[0]
-                            video_name=video_name[0]+'.'+video_name[1]
-                        elif 'https://oasis.video.weibocdn.com' in video_url:
-                            # https://oasis.video.weibocdn.com/o2/Dm280BYblx07YUQoYiQo01041200OvMq0E012.mp4?label=mp4_ld&template=632x360.25.0&ori=0&ps=1BThihd3VLAY5R&Expires=1696356699&ssig=2JD6ChOexO&KID=unistore,video
-                            video_name=re.findall('o2/(.*).(mp4|m3u8)',video_url)[0]
-                            video_name=video_name[0]+'.'+video_name[1]
-                        else:
-                            video_name = re.compile(
-                                r'.*.mp4\?').findall(video_url.split('/')[-1])
-                            if len(video_name) > 0:
-                                video_name = video_name[0][:-1]
-                            else:
-                                video_name = 'None.mp4'
-                        return video_url,video_name
-        return None,None
+            youran.logger.warning("输入为空")
+            return None, None
+            
+        try:
+            # 检查必要的键
+            page_info = mblog.get('page_info')
+            if not page_info:
+                youran.logger.warning(f"缺少page_info: {mblog}")
+                return None, None
+                
+            if page_info.get('type') != 'video':
+                youran.logger.warning(f"page_info类型不是视频: {page_info.get('type')}")
+                return None, None
+                
+            # 获取视频信息
+            media_info = page_info.get('media_info')
+            if not media_info:
+                youran.logger.warning(f"未找到视频信息: {page_info}")
+                return None, None
+                
+            video_url = media_info.get('stream_url', '')
+            if not video_url:
+                youran.logger.warning(f"视频链接为空")
+                return None, None
+                
+            youran.logger.warning(f"解析到视频链接：{video_url}")
+            video_name = self._extract_video_name(video_url)
+            
+            if video_name:
+                return video_url, video_name
+            else:
+                youran.logger.warning(f"未能提取视频名称: {video_url}")
+                return None, None
+                
+        except Exception as e:
+            youran.logger.error(f"视频提取过程中发生错误: {repr(e)}")
+            return None, None
+            
+    def _extract_video_name(self, video_url):
+        """根据URL提取视频名称"""
+        try:
+            # CDN视频
+            if any(domain in video_url for domain in ['cntv.vod.cdn.myqcloud.com', 'flv.bn.netease.com']):
+                return video_url.split('/')[-1]
+                
+            # 秒拍视频
+            elif 'miaopai.video.weibocdn.com' in video_url:
+                if '?Expires=' in video_url:
+                    result = self._safe_regex_find('miaopai_expires', video_url)
+                    if result and result[0]:
+                        return result[0].split('/')[-1][:-8] + '.mp4'
+                if '.mp4?label=mp4_hd' in video_url:
+                    result = self._safe_regex_find('miaopai_mp4', video_url)
+                    if result and result[0]:
+                        return result[0][:-1].split('/')[-1]   
+            # 新浪视频API (需要重定向)
+            elif 'api.ivideo.sina.com.cn' in video_url:
+                try:
+                    redirected_url = urllib.request.urlopen(video_url).geturl()
+                    result = self._safe_regex_find('sina_video', redirected_url)
+                    if result and result[0]:
+                        return result[0][0] + '.' + result[0][1]
+                except Exception as e:
+                    youran.logger.error(f"处理重定向URL时出错: {repr(e)}")
+            elif 'redirect_tencent_video' in video_url:
+                try:
+                    redirected_url = urllib.request.urlopen(video_url).geturl()
+                    result = self._safe_regex_find('tencent_video', redirected_url)
+                    if result and result[0]:
+                        return result[0][0] + '.' + result[0][1]
+                except Exception as e:
+                    youran.logger.error(f"处理重定向URL时出错: {repr(e)}")                  
+            # 新浪图片服务器视频
+            elif 'https://us.sinaimg.cn' in video_url:
+                result = self._safe_regex_find('sina_video', video_url)
+                if result and result[0]:
+                    return result[0][0] + '.' + result[0][1]
+                    
+            # 优酷视频
+            elif 'https://api.youku.com' in video_url:
+                return video_url.split('data=')[1] + '.mp4'
+                
+            # 新浪边缘服务器视频
+            elif 'edge.ivideo.sina.com.cn' in video_url:
+                result = self._safe_regex_find('edge_video', video_url)
+                if result and result[0]:
+                    return result[0] + '.mp4'
+                    
+            # 美图视频
+            elif 'http://mvvideo2.meitudata.com' in video_url:
+                result = self._safe_regex_find('meitu_video', video_url)
+                if result and result[0]:
+                    return result[0][0] + '.' + result[0][1]
+                    
+            # 绿洲视频
+            elif 'https://oasis.video.weibocdn.com' in video_url:
+                result = self._safe_regex_find('oasis_video', video_url)
+                if result and result[0]:
+                    return result[0][0] + '.' + result[0][1]
+                    
+            # 微博CDN视频
+            elif 'https://f.video.weibocdn.com' in video_url:
+                result = self._safe_regex_find('f_video', video_url)
+                if result and result[0]:
+                    return result[0][1] + '.' + result[0][2]
+                    
+            # 默认情况
+            else:
+                result = self._safe_regex_find('default_mp4', video_url.split('/')[-1])
+                if result and result[0]:
+                    return result[0][:-1]
+                    
+            # 如果所有方法失败，返回通用名称
+            return f"video_{int(time.time())}.mp4"
+            
+        except Exception as e:
+            youran.logger.error(f"提取视频名称时出错: {repr(e)}")
+            return f"error_video_{int(time.time())}.mp4"
+
 class Img(BaseNet):
     def extract(self,mblog):
         url_names = []

@@ -4,6 +4,11 @@
 
 ## 【文档不完善，继续补充中。】
 
+## 20250323 更新v0.3.0
+- 优化了UI
+- 优化了大部分的业务逻辑
+- 取消每日统计，改为实时更新
+
 ## 20231007更新v0.2.0
 
 - 更新UI:about中新增每日博文和博主数
@@ -30,9 +35,6 @@
 
 ## 功能展示
 
-- 用户主页
-
-![](imgs/用户主页.png)
 
 - 个人主页
 
@@ -62,28 +64,6 @@
 
 ## 功能
 
-## docker部署
-
-```
-git clone https://github.com/lixiang0/WeiboSpider
-cd WeiboSpider/
-
-# 1.minio
-docker run \
-  -p 9000:9000 \
-  -p 9001:9001 \
-  --name minio1 \
-  -e "MINIO_ROOT_USER=minio" \
-  -e "MINIO_ROOT_PASSWORD=minio" \
-  -v /mnt/data:/data \
-  quay.io/minio/minio server /data --console-address ":9001"
-
-# 2.[可选]关于cookie 
-# https://github.com/moonD4rk/HackBrowserData
-# cookie保存在results目录下
-
-# 3.部署
-# 注意docker-compose.yml里面的mongodb和minio的地址
-sudo docker-compose up -d --build
+## 部署
 
 

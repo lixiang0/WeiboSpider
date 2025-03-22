@@ -1,14 +1,8 @@
-# import youran
-
-# from youran import db,net
-
-# URL='hot/b56ebee355d35de0_0.html?type=grab'
-# mblogs=list(db.hotid.find({'url':URL+'?type=grab'}))
-
-# print(mblogs)
-
-# print(list(db.hotid.find({})))
-# import threading
+import os
+os.environ["DBIP"]="192.168.8.111"
+os.environ["MINIOIP"]="192.168.8.111"
+os.environ["DBPort"]="27017"
+os.environ["MINIOPort"]="9000"
 import youran
 from youran import db,net,utils
 from youran.db import *

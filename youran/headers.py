@@ -31,8 +31,7 @@ video={'Host': 'f.video.weibocdn.com',
         'Sec-Fetch-Mode': 'no-cors',
 }
 cookies=dict()
-#填入对应的cookie
-cookies['_T_WM']=''
-cookies['mweibo_short_token']=''
-cookies['SUBP']=''
-cookies['SUB']=''
+cookies['_T_WM']='c2dae04e7dc61854cbda0a86b9f6d8d8'
+cookies['mweibo_short_token']='a063a5c2d7'
+cookies['SUBP']='0033WrSXqPxfM725Ws9jqgMF55529P9D9WWdqm5.QclOH545ex2uKkmb5NHD95Qce0.7eKBXe0MXWs4Dqcj6i--ciKnEi-27i--NiKnXi-zci--Ri-88i-2pi--Ni-88iK.Ni--ciKLhi-iWi--Ri-2NiKnci--Ri-2NiKn4'
+cookies['SUB']='_2A25IGGfQDeRhGeBN4lIQ9CrPzDiIHXVr4wmYrDV6PUJbktCOLXT1kW1NRAmEpHFnSVk7FiI7Ez5GLdMAM9uiuUlo'

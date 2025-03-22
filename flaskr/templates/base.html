@@ -2,38 +2,47 @@
 <html>
 
 <head>
-
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Your site description here">
+  <meta name="keywords" content="keyword1, keyword2, keyword3">
   <title>个人主页</title>
   <link rel="stylesheet" href="/static/bulma.min.css">
   <script src="/static/jquery.min.js"></script>
   <script src="http://code.highcharts.com/highcharts.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+      $navbarBurgers.forEach(el => {
+        el.addEventListener('click', () => {
+          const target = el.dataset.target;
+          const $target = document.getElementById(target);
+          el.classList.toggle('is-active');
+          $target.classList.toggle('is-active');
+        });
+      });
+    });
+  </script>
 </head>
 
 <body>
 
   {% block nav %}
-  <!-- 最上的导航页 -->
   <div class='container'>
     {% include 'nav.html' %}
   </div>
   {% endblock %}
 
-
-  <div class="container is-widescreen ">
-    <div class="columns  ">
+  <div class="container is-widescreen">
+    <div class="columns">
       <div class="column is-2">
-        <!-- 左侧的导航页 -->
         {% block menu %}
         {% include 'menu.html' %}
         {% endblock %}
       </div>
 
-      <div class="column  is-6">
-
+      <div class="column is-6">
         <div class='block'>
-          <!-- 博文内容 -->
           <div id="content">
             {% block content %}
             {% for blog in dicts['blogs'] %}
@@ -48,22 +57,17 @@
       </div>
 
       <div class="column is-4">
-
-        <!-- 用户基本信息 -->
         {% block userinfo %}
         {% include 'userinfo.html' %}
         {% endblock %}
-    
-        <!-- 热搜 -->
+
         {% block resou %}
         {% include 'resou.html' %}
         {% endblock %}
-        <!-- 推荐 -->
+
         {% block tuijian %}
         {% include 'tuijian.html' %}
         {% endblock %}
-
-
       </div>
     </div>
   </div>

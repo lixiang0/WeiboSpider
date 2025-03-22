@@ -201,7 +201,7 @@ $(document).ready(function() {
                 }
             }
         },
-        colors: ['#3273DC', '#23D160'],
+        colors: ['#3273DC', '#23D160', '#551110','#FFD700','#FF6B6B'],
         legend: {
             align: 'center',
             verticalAlign: 'bottom',
@@ -216,6 +216,15 @@ $(document).ready(function() {
         }, {
             name: '微博数',
             data: JSON.parse('{{ dicts["mblog_count"]|tojson|safe }}')
+        }, {
+            name: '评论数',
+            data: JSON.parse('{{ dicts["comment_count"]|tojson|safe }}')
+        }, {
+            name: '图片',
+            data: JSON.parse('{{ dicts["imgs_count"]|tojson|safe }}')
+        }, {
+            name: '视频',
+            data: JSON.parse('{{ dicts["videos_count"]|tojson|safe }}')
         }],
         responsive: {
             rules: [{
